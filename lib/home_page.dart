@@ -48,9 +48,23 @@ class MyHomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: FloodInfoCard(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22.0),
+              child: Column(
+                children: [
+                  const FloodInfoCard(),
+                  const SizedBox(height: 22),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: const [
+                      _ServiceButton(icon: Icons.warning, label: 'Alert', color: Colors.red),
+                      _ServiceButton(icon: Icons.report, label: 'Report', color: Colors.orange),
+                      _ServiceButton(icon: Icons.house, label: 'Shelters', color: Colors.blue),
+                      _ServiceButton(icon: Icons.info, label: 'Info', color: Colors.green),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             const Padding(
@@ -120,7 +134,7 @@ class FloodInfoCard extends StatelessWidget {
                         const Text(
                           '24°',
                           style: TextStyle(
-                            fontSize: 36,
+                            fontSize: 30,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF3A83B7),
                           ),
@@ -160,7 +174,7 @@ class FloodInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             
             // Status and Risk Meter
             Row(
@@ -218,7 +232,7 @@ class FloodInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             
             // Stats Grid
             Row(
@@ -242,7 +256,7 @@ class FloodInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
@@ -264,7 +278,7 @@ class FloodInfoCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             
             // Info Text
             const Text(
@@ -333,6 +347,51 @@ class _StatItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ServiceButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _ServiceButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            // TODO: implement action
+          },
+          borderRadius: BorderRadius.circular(40),
+          child: Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: color,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.25),
+                  blurRadius: 8,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 26),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(label, style: TextStyle(fontSize: 12, color: color)),
+      ],
     );
   }
 }
