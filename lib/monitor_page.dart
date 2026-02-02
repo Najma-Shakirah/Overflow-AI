@@ -55,7 +55,7 @@ class _MonitorPageState extends State<MonitorPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3A83B7), Color(0xFF6C63FF)],
+                  colors: [Color(0xFF3A83B7),Color.fromARGB(255, 29, 255, 142)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),

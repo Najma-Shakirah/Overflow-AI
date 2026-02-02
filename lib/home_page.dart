@@ -15,7 +15,7 @@ class MyHomePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3A83B7), Color(0xFF6C63FF)],
+                  colors: [Color.fromARGB(255, 46, 150, 199), Color.fromARGB(255, 29, 255, 142)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
