@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'navbar.dart';
+import '../navbar/navbar.dart';
 
 class AlertsPage extends StatelessWidget {
   const AlertsPage({super.key});

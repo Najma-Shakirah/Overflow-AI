@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'navbar.dart';
+import '../navbar/navbar.dart';
 
 class CommunityPostsPage extends StatefulWidget {
   const CommunityPostsPage({super.key});

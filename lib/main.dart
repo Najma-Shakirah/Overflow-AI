@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'home_page.dart';
-import 'alerts_page.dart';
-import 'help_page.dart';
-import 'profile_page.dart';
-import 'monitor_page.dart';
-import 'checklist_page.dart';
-import 'community_posts_page.dart';
+import 'screens/home/home_page.dart';
+import 'screens/alert/alerts_page.dart';
+import 'screens/help/help_page.dart';
+import 'screens/profile/profile_page.dart';
+import 'screens/monitor/monitor_page.dart';
+import 'screens/checklist/checklist_page.dart';
+import 'screens/communitypost/community_posts_page.dart';
 
 void main() {
   runApp(const MyApp());
