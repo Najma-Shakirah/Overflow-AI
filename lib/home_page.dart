@@ -15,7 +15,10 @@ class MyHomePage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color.fromARGB(255, 46, 150, 199), Color.fromARGB(255, 29, 255, 142)],
+                  colors: [
+                    Color.fromARGB(255, 46, 150, 199),
+                    Color.fromARGB(255, 29, 255, 142),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -30,7 +33,8 @@ class MyHomePage extends StatelessWidget {
                   children: [
                     Text(
                       'Hello, user',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -38,10 +42,9 @@ class MyHomePage extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       'Welcome back!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: Colors.white70),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -56,11 +59,29 @@ class MyHomePage extends StatelessWidget {
                   const SizedBox(height: 22),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: const [
-                      _ServiceButton(icon: Icons.warning, label: 'Alert', color: Colors.red),
-                      _ServiceButton(icon: Icons.report, label: 'Report', color: Colors.orange),
-                      _ServiceButton(icon: Icons.house, label: 'Shelters', color: Colors.blue),
-                      _ServiceButton(icon: Icons.info, label: 'Info', color: Colors.green),
+                    children: [
+                      _ServiceButton(
+                        icon: Icons.pending_actions,
+                        label: 'Checklist',
+                        color: Colors.red,
+                        routeName: '/checklist',
+                      ),
+                      const _ServiceButton(
+                        icon: Icons.report,
+                        label: 'Report',
+                        color: Colors.orange,
+                      ),
+                      const _ServiceButton(
+                        icon: Icons.house,
+                        label: 'Shelters',
+                        color: Colors.blue,
+                      ),
+                      _ServiceButton(
+                        icon: Icons.post_add,
+                        label: 'Community Post',
+                        color: Colors.green,
+                        routeName: '/community',
+                      ),
                     ],
                   ),
                 ],
@@ -91,9 +112,7 @@ class MyHomePage extends StatelessWidget {
       ),
       floatingActionButton: const MonitorFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomNavBar(
-        currentIndex: 0,
-      ),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
     );
   }
 }
@@ -153,10 +172,7 @@ class FloodInfoCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     const Text(
                       'Kuala Lumpur',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -175,16 +191,13 @@ class FloodInfoCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            
+
             // Status and Risk Meter
             Row(
               children: [
                 const Text(
                   'Flood Risk: ',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 Text(
                   'MODERATE',
@@ -195,15 +208,11 @@ class FloodInfoCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(
-                  Icons.speed,
-                  color: Colors.orange[700],
-                  size: 20,
-                ),
+                Icon(Icons.speed, color: Colors.orange[700], size: 20),
               ],
             ),
             const SizedBox(height: 8),
-            
+
             // Risk Meter Bar
             Stack(
               children: [
@@ -220,11 +229,7 @@ class FloodInfoCard extends StatelessWidget {
                     height: 6,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Colors.green,
-                          Colors.yellow,
-                          Colors.orange,
-                        ],
+                        colors: [Colors.green, Colors.yellow, Colors.orange],
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -233,7 +238,7 @@ class FloodInfoCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            
+
             // Stats Grid
             Row(
               children: [
@@ -279,14 +284,11 @@ class FloodInfoCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            
+
             // Info Text
             const Text(
               'Stay alert and monitor updates regularly.',
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 11, color: Colors.grey),
             ),
           ],
         ),
@@ -315,19 +317,12 @@ class _StatItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 18,
-          ),
+          Icon(icon, color: color, size: 18),
           const SizedBox(height: 6),
           Text(
             value,
@@ -338,13 +333,7 @@ class _StatItem extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
         ],
       ),
     );
@@ -355,12 +344,13 @@ class _ServiceButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final String? routeName;
 
   const _ServiceButton({
     required this.icon,
     required this.label,
     required this.color,
-    super.key,
+    this.routeName,
   });
 
   @override
@@ -369,7 +359,9 @@ class _ServiceButton extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            // TODO: implement action
+            if (routeName != null) {
+              Navigator.pushNamed(context, routeName!); // ← Uses named route
+            }
           },
           borderRadius: BorderRadius.circular(40),
           child: Container(
@@ -410,14 +402,16 @@ class _NewsCarouselState extends State<NewsCarousel> {
   final List<NewsItem> _newsItems = [
     NewsItem(
       title: 'Emergency Services on High Alert',
-      description: 'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
+      description:
+          'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
       time: '15 mins ago',
       category: 'Emergency',
       categoryColor: Colors.red,
     ),
     NewsItem(
       title: 'Water Levels Rising in Klang Valley',
-      description: 'Authorities warn residents to stay vigilant as rainfall continues',
+      description:
+          'Authorities warn residents to stay vigilant as rainfall continues',
       time: '1 hour ago',
       category: 'Warning',
       categoryColor: Colors.orange,
@@ -447,10 +441,10 @@ class _NewsCarouselState extends State<NewsCarousel> {
 
   void _autoScroll() {
     if (!mounted) return;
-    
+
     Future.delayed(const Duration(seconds: 4), () {
       if (!mounted) return;
-      
+
       int nextPage = (_currentPage + 1) % _newsItems.length;
       _pageController.animateToPage(
         nextPage,
@@ -560,7 +554,10 @@ class NewsCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: newsItem.categoryColor,
                     borderRadius: BorderRadius.circular(12),
@@ -575,18 +572,11 @@ class NewsCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                Icon(
-                  Icons.access_time,
-                  size: 14,
-                  color: Colors.grey[600],
-                ),
+                Icon(Icons.access_time, size: 14, color: Colors.grey[600]),
                 const SizedBox(width: 4),
                 Text(
                   newsItem.time,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
