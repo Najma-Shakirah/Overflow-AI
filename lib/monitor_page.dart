@@ -55,7 +55,10 @@ class _MonitorPageState extends State<MonitorPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3A83B7),Color.fromARGB(255, 29, 255, 142)],
+                  colors: [
+                    Color(0xFF3A83B7),
+                    Color.fromARGB(255, 29, 255, 142),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -74,7 +77,10 @@ class _MonitorPageState extends State<MonitorPage> {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -83,7 +89,8 @@ class _MonitorPageState extends State<MonitorPage> {
                             children: [
                               Text(
                                 'Live Monitoring',
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -102,9 +109,7 @@ class _MonitorPageState extends State<MonitorPage> {
                                   const SizedBox(width: 6),
                                   Text(
                                     'Real-time data • Updated 2 mins ago',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(color: Colors.white70),
                                   ),
                                 ],
@@ -119,12 +124,15 @@ class _MonitorPageState extends State<MonitorPage> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Location Selector
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -138,10 +146,7 @@ class _MonitorPageState extends State<MonitorPage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.location_on,
-                      color: Color(0xFF3A83B7),
-                    ),
+                    const Icon(Icons.location_on, color: Color(0xFF3A83B7)),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
@@ -153,16 +158,13 @@ class _MonitorPageState extends State<MonitorPage> {
                         ),
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_drop_down,
-                      color: Colors.grey,
-                    ),
+                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Live Metrics
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -241,7 +243,7 @@ class _MonitorPageState extends State<MonitorPage> {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Graph Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -273,7 +275,10 @@ class _MonitorPageState extends State<MonitorPage> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.blue.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -307,7 +312,10 @@ class _MonitorPageState extends State<MonitorPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         _GraphLegend(color: Colors.blue, label: 'Current'),
-                        _GraphLegend(color: Colors.orange, label: 'Warning Level'),
+                        _GraphLegend(
+                          color: Colors.orange,
+                          label: 'Warning Level',
+                        ),
                         _GraphLegend(color: Colors.red, label: 'Danger Level'),
                       ],
                     ),
@@ -336,12 +344,15 @@ class _MonitorPageState extends State<MonitorPage> {
                       ),
                       Row(
                         children: [
-                          const Text('Show Forecast', style: TextStyle(fontSize: 13, color: Colors.grey)),
+                          const Text(
+                            'Show Forecast',
+                            style: TextStyle(fontSize: 13, color: Colors.grey),
+                          ),
                           const SizedBox(width: 8),
                           Switch(
                             value: _showForecast,
                             onChanged: (v) => setState(() => _showForecast = v),
-                            activeColor: const Color(0xFF3A83B7),
+                            activeThumbColor: const Color(0xFF3A83B7),
                           ),
                         ],
                       ),
@@ -370,7 +381,8 @@ class _MonitorPageState extends State<MonitorPage> {
                         ),
                         children: [
                           TileLayer(
-                            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            urlTemplate:
+                                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                             subdomains: const ['a', 'b', 'c'],
                           ),
                           if (_showForecast)
@@ -516,7 +528,7 @@ class _LiveMetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     IconData trendIcon;
     Color trendColor;
-    
+
     if (trend == 'up') {
       trendIcon = Icons.trending_up;
       trendColor = Colors.red;
@@ -533,10 +545,7 @@ class _LiveMetricCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 2),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -570,13 +579,7 @@ class _LiveMetricCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
           const SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -594,10 +597,7 @@ class _LiveMetricCard extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
                   unit,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ),
             ],
@@ -617,10 +617,7 @@ class _LiveMetricCard extends StatelessWidget {
               ),
               Text(
                 ' vs 1h ago',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[500],
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey[500]),
               ),
             ],
           ),
@@ -649,13 +646,7 @@ class _GraphLegend extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
       ],
     );
   }
@@ -701,11 +692,7 @@ class _SensorStationCard extends StatelessWidget {
               color: statusColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              Icons.sensors,
-              color: statusColor,
-              size: 24,
-            ),
+            child: Icon(Icons.sensors, color: statusColor, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -723,10 +710,7 @@ class _SensorStationCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   location,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -750,10 +734,7 @@ class _SensorStationCard extends StatelessWidget {
                     ),
                     Text(
                       ' • $lastUpdate',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -773,10 +754,7 @@ class _SensorStationCard extends StatelessWidget {
               ),
               Text(
                 'Water Level',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 10, color: Colors.grey[600]),
               ),
             ],
           ),
@@ -849,11 +827,11 @@ class _WaterLevelGraphPainter extends CustomPainter {
     final fillPath = ui.Path()
       ..moveTo(0, size.height)
       ..lineTo(points[0].dx, points[0].dy);
-    
+
     for (var i = 1; i < points.length; i++) {
       fillPath.lineTo(points[i].dx, points[i].dy);
     }
-    
+
     fillPath.lineTo(size.width, size.height);
     fillPath.close();
 

@@ -5,6 +5,8 @@ import 'alerts_page.dart';
 import 'help_page.dart';
 import 'profile_page.dart';
 import 'monitor_page.dart';
+import 'checklist_page.dart';
+import 'community_posts_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,7 +14,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/help': (context) => const HelpPage(),
         '/profile': (context) => const ProfilePage(),
         '/monitor': (context) => const MonitorPage(),
+        '/checklist': (context) => const ChecklistPage(),
+        '/community': (context) => const CommunityPostsPage(),
       },
     );
   }
