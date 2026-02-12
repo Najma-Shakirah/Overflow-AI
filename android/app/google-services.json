@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "841934933765",
+    "project_id": "overflowai",
+    "storage_bucket": "overflowai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841934933765:android:2c52661e6042fc6803b16c",
+        "android_client_info": {
+          "package_name": "com.copedepedepod.overflowai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "841934933765-5sh7724m07d8h4fdbiogaj6pq6glecrd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlivR_OKfQiNCNUtdOITA9FUMBZgnBZ1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "841934933765-5sh7724m07d8h4fdbiogaj6pq6glecrd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841934933765:android:aa4dcbeae7e881d603b16c",
+        "android_client_info": {
+          "package_name": "com.example.overflow_ai_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "841934933765-5sh7724m07d8h4fdbiogaj6pq6glecrd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlivR_OKfQiNCNUtdOITA9FUMBZgnBZ1A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "841934933765-5sh7724m07d8h4fdbiogaj6pq6glecrd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
