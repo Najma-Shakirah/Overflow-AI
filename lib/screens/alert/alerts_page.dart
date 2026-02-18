@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../navbar/navbar.dart';
 
-class AlertsPage extends StatelessWidget {
+class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
+
+  @override
+  State<AlertsPage> createState() => _AlertsPageState();
+}
+
+class _AlertsPageState extends State<AlertsPage> {
+  String selectedFilter = 'All';
 
   @override
   Widget build(BuildContext context) {
@@ -59,26 +67,30 @@ class AlertsPage extends StatelessWidget {
                   children: [
                     _FilterChip(
                       label: 'All',
-                      isSelected: true,
+                      isSelected: selectedFilter == 'All',
                       color: Colors.blue,
+                      onTap: () => setState(() => selectedFilter = 'All'),
                     ),
                     const SizedBox(width: 8),
                     _FilterChip(
                       label: 'Critical',
-                      isSelected: false,
+                      isSelected: selectedFilter == 'Critical',
                       color: Colors.red,
+                      onTap: () => setState(() => selectedFilter = 'Critical'),
                     ),
                     const SizedBox(width: 8),
                     _FilterChip(
                       label: 'Warning',
-                      isSelected: false,
+                      isSelected: selectedFilter == 'Warning',
                       color: Colors.orange,
+                      onTap: () => setState(() => selectedFilter = 'Warning'),
                     ),
                     const SizedBox(width: 8),
                     _FilterChip(
                       label: 'Info',
-                      isSelected: false,
+                      isSelected: selectedFilter == 'Info',
                       color: Colors.green,
+                      onTap: () => setState(() => selectedFilter = 'Info'),
                     ),
                   ],
                 ),
@@ -86,62 +98,76 @@ class AlertsPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             
-            // Alerts List
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  _AlertCard(
-                    title: 'Flash Flood Warning',
-                    location: 'Kuala Lumpur City Center',
-                    time: '10 mins ago',
-                    severity: 'Critical',
-                    severityColor: Colors.red,
-                    description: 'Heavy rainfall expected in the next 2 hours. Water levels rising rapidly in low-lying areas.',
-                    icon: Icons.warning_amber_rounded,
+            // Real-time Alerts List from Firestore
+            StreamBuilder<QuerySnapshot>(
+              stream: _getAlertsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text('Error: ${snapshot.error}'),
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(40.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.notifications_off_outlined,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No alerts at the moment',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final alerts = snapshot.data!.docs;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    children: alerts.map((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12.0),
+                        child: _AlertCard(
+                          title: data['title'] ?? 'Flood Alert',
+                          location: data['location'] ?? 'Unknown',
+                          time: _getTimeAgo(data['timestamp']),
+                          severity: data['severity'] ?? 'Info',
+                          severityColor: _getSeverityColor(data['severity']),
+                          description: data['message'] ?? '',
+                          icon: _getSeverityIcon(data['severity']),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  const SizedBox(height: 12),
-                  _AlertCard(
-                    title: 'Rising Water Levels',
-                    location: 'Klang Valley',
-                    time: '25 mins ago',
-                    severity: 'Warning',
-                    severityColor: Colors.orange,
-                    description: 'River water levels increasing. Residents near riverbanks advised to stay alert.',
-                    icon: Icons.water_damage,
-                  ),
-                  const SizedBox(height: 12),
-                  _AlertCard(
-                    title: 'Weather Advisory',
-                    location: 'Selangor',
-                    time: '1 hour ago',
-                    severity: 'Info',
-                    severityColor: Colors.blue,
-                    description: 'Continuous rain forecast for the next 6 hours. Monitor local conditions.',
-                    icon: Icons.cloud,
-                  ),
-                  const SizedBox(height: 12),
-                  _AlertCard(
-                    title: 'Road Closure Alert',
-                    location: 'Jalan Ampang',
-                    time: '2 hours ago',
-                    severity: 'Warning',
-                    severityColor: Colors.orange,
-                    description: 'Main road flooded. Traffic diverted to alternative routes.',
-                    icon: Icons.block,
-                  ),
-                  const SizedBox(height: 12),
-                  _AlertCard(
-                    title: 'Evacuation Notice',
-                    location: 'Kampung Baru',
-                    time: '3 hours ago',
-                    severity: 'Critical',
-                    severityColor: Colors.red,
-                    description: 'Immediate evacuation required for residents in affected zones. Proceed to nearest relief center.',
-                    icon: Icons.emergency,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
             const SizedBox(height: 100),
           ],
@@ -154,33 +180,106 @@ class AlertsPage extends StatelessWidget {
       ),
     );
   }
+
+  Stream<QuerySnapshot> _getAlertsStream() {
+    Query query = FirebaseFirestore.instance
+        .collection('flood_alerts')
+        .orderBy('timestamp', descending: true)
+        .limit(20);
+
+    if (selectedFilter != 'All') {
+      query = query.where('severity', isEqualTo: selectedFilter.toUpperCase());
+    }
+
+    return query.snapshots();
+  }
+
+  Color _getSeverityColor(String? severity) {
+    switch (severity?.toUpperCase()) {
+      case 'CRITICAL':
+      case 'HIGH':
+        return Colors.red;
+      case 'WARNING':
+      case 'MEDIUM':
+        return Colors.orange;
+      case 'INFO':
+      case 'LOW':
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getSeverityIcon(String? severity) {
+    switch (severity?.toUpperCase()) {
+      case 'CRITICAL':
+      case 'HIGH':
+        return Icons.emergency;
+      case 'WARNING':
+      case 'MEDIUM':
+        return Icons.warning_amber_rounded;
+      case 'INFO':
+      case 'LOW':
+        return Icons.info_outline;
+      default:
+        return Icons.notifications;
+    }
+  }
+
+  String _getTimeAgo(dynamic timestamp) {
+    if (timestamp == null) return 'Just now';
+    
+    DateTime dateTime;
+    if (timestamp is Timestamp) {
+      dateTime = timestamp.toDate();
+    } else {
+      return 'Just now';
+    }
+
+    final difference = DateTime.now().difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} mins ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    }
+  }
 }
 
 class _FilterChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final Color color;
+  final VoidCallback onTap;
 
   const _FilterChip({
     required this.label,
     required this.isSelected,
     required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? color : Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: isSelected ? Colors.white : Colors.grey[700],
-          fontWeight: FontWeight.w600,
-          fontSize: 13,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? color : Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.grey[700],
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+          ),
         ),
       ),
     );
@@ -265,11 +364,14 @@ class _AlertCard extends StatelessWidget {
                             color: Colors.grey[600],
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            location,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
+                          Flexible(
+                            child: Text(
+                              location,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
@@ -323,6 +425,7 @@ class _AlertCard extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // TODO: Show more details
+                    _showAlertDetails(context);
                   },
                   child: const Text(
                     'View Details',
@@ -336,6 +439,38 @@ class _AlertCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAlertDetails(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                const SizedBox(width: 4),
+                Text(location, style: TextStyle(color: Colors.grey[600])),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(description),
+            const SizedBox(height: 12),
+            Text('Time: $time', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
