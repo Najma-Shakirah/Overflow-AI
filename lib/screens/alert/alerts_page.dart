@@ -145,7 +145,11 @@ class _AlertsPageState extends State<AlertsPage> {
                   );
                 }
 
-                final alerts = snapshot.data!.docs;
+                final alerts = snapshot.data!.docs.where((doc) {
+  if (selectedFilter == 'All') return true;
+  final data = doc.data() as Map<String, dynamic>;
+  return data['severity']?.toUpperCase() == selectedFilter.toUpperCase();
+}).toList();
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -181,18 +185,13 @@ class _AlertsPageState extends State<AlertsPage> {
     );
   }
 
-  Stream<QuerySnapshot> _getAlertsStream() {
-    Query query = FirebaseFirestore.instance
-        .collection('flood_alerts')
-        .orderBy('timestamp', descending: true)
-        .limit(20);
-
-    if (selectedFilter != 'All') {
-      query = query.where('severity', isEqualTo: selectedFilter.toUpperCase());
-    }
-
-    return query.snapshots();
-  }
+Stream<QuerySnapshot> _getAlertsStream() {
+  return FirebaseFirestore.instance
+      .collection('flood_alerts')
+      .orderBy('timestamp', descending: true)
+      .limit(20)
+      .snapshots();
+}
 
   Color _getSeverityColor(String? severity) {
     switch (severity?.toUpperCase()) {
