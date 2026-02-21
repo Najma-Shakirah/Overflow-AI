@@ -5,7 +5,6 @@ import 'firebase_options.dart';
 
 // pages
 import 'login_page.dart';
-import 'register_page.dart';
 
 // your real app pages
 import 'screens/home/home_page.dart';
@@ -15,6 +14,7 @@ import 'screens/profile/profile_page.dart';
 import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
+import 'screens/shelter/shelter_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +78,7 @@ class MainApp extends StatelessWidget {
         '/monitor': (context) => const MonitorPage(),
         '/checklist': (context) => const ChecklistPage(),
         '/community': (context) => const CommunityPostsPage(),
+        '/shelters': (context) => const ShelterPage(),
       },
     );
   }
