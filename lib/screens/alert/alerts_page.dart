@@ -2,6 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../navbar/navbar.dart';
 
+// Sample alerts shown when Firestore is empty (for development/demo)
+final List<Map<String, dynamic>> _sampleAlerts = [
+  {
+    'title': 'Severe Flooding Detected',
+    'location': 'Kuala Lumpur, Lembah Klang',
+    'severity': 'CRITICAL',
+    'message':
+        'Water levels have exceeded danger threshold at 8.2m. Immediate evacuation advised for low-lying areas. Emergency services are on standby.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(minutes: 10))),
+  },
+  {
+    'title': 'Flash Flood Warning',
+    'location': 'Shah Alam, Selangor',
+    'severity': 'HIGH',
+    'message':
+        'Heavy rainfall has caused rapid water rise in Seksyen 7 and Seksyen 13. Residents near riverbanks should move to higher ground immediately.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(minutes: 45))),
+  },
+  {
+    'title': 'Flood Watch Issued',
+    'location': 'Petaling Jaya, Selangor',
+    'severity': 'WARNING',
+    'message':
+        'Continuous rain forecast for the next 6 hours. Water levels at Sungai Klang are rising. Monitor local updates and be prepared to evacuate.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(hours: 2))),
+  },
+  {
+    'title': 'Road Closure — Flood Risk',
+    'location': 'Subang Jaya, Selangor',
+    'severity': 'WARNING',
+    'message':
+        'Jalan SS15 and surrounding roads temporarily closed due to waterlogging. Use alternative routes via Federal Highway.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(hours: 3))),
+  },
+  {
+    'title': 'Water Level Advisory',
+    'location': 'Ampang, Kuala Lumpur',
+    'severity': 'INFO',
+    'message':
+        'Water levels at Sungai Ampang currently at 3.1m — below danger threshold. Situation is being monitored. No action required at this time.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(hours: 5))),
+  },
+  {
+    'title': 'Flood Alert Lifted',
+    'location': 'Cheras, Kuala Lumpur',
+    'severity': 'INFO',
+    'message':
+        'Previous flood warning for Taman Connaught has been lifted. Water levels have returned to normal. Roads are now open.',
+    'timestamp': Timestamp.fromDate(DateTime.now().subtract(const Duration(hours: 8))),
+  },
+];
+
 class AlertsPage extends StatefulWidget {
   const AlertsPage({super.key});
 
@@ -57,7 +109,7 @@ class _AlertsPageState extends State<AlertsPage> {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Filter Chips
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -97,8 +149,8 @@ class _AlertsPageState extends State<AlertsPage> {
               ),
             ),
             const SizedBox(height: 20),
-            
-            // Real-time Alerts List from Firestore
+
+            // Alerts List — Firestore with sample data fallback
             StreamBuilder<QuerySnapshot>(
               stream: _getAlertsStream(),
               builder: (context, snapshot) {
@@ -120,7 +172,18 @@ class _AlertsPageState extends State<AlertsPage> {
                   );
                 }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                // Use Firestore data if available, otherwise show sample alerts
+                final bool useFirestore =
+                    snapshot.hasData && snapshot.data!.docs.isNotEmpty;
+
+                final List<Map<String, dynamic>> alerts = useFirestore
+                    ? snapshot.data!.docs.map((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        return data;
+                      }).toList()
+                    : _getFilteredSampleAlerts();
+
+                if (alerts.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(40.0),
@@ -133,7 +196,7 @@ class _AlertsPageState extends State<AlertsPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'No alerts at the moment',
+                            'No alerts for this filter',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[600],
@@ -145,26 +208,54 @@ class _AlertsPageState extends State<AlertsPage> {
                   );
                 }
 
-                final alerts = snapshot.data!.docs;
-
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
-                    children: alerts.map((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0),
-                        child: _AlertCard(
-                          title: data['title'] ?? 'Flood Alert',
-                          location: data['location'] ?? 'Unknown',
-                          time: _getTimeAgo(data['timestamp']),
-                          severity: data['severity'] ?? 'Info',
-                          severityColor: _getSeverityColor(data['severity']),
-                          description: data['message'] ?? '',
-                          icon: _getSeverityIcon(data['severity']),
+                    children: [
+                      // Show banner if using sample data
+                      if (!useFirestore)
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.blue[50],
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline,
+                                  size: 16, color: Colors.blue[700]),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Showing sample alerts — real alerts will appear here automatically.',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.blue[700]),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    }).toList(),
+
+                      ...alerts.map((data) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: _AlertCard(
+                            title: data['title'] ?? 'Flood Alert',
+                            location: data['location'] ?? 'Unknown',
+                            time: _getTimeAgo(data['timestamp']),
+                            severity: data['severity'] ?? 'Info',
+                            severityColor:
+                                _getSeverityColor(data['severity']),
+                            description: data['message'] ?? '',
+                            icon: _getSeverityIcon(data['severity']),
+                          ),
+                        );
+                      }),
+                    ],
                   ),
                 );
               },
@@ -194,6 +285,21 @@ class _AlertsPageState extends State<AlertsPage> {
     return query.snapshots();
   }
 
+  List<Map<String, dynamic>> _getFilteredSampleAlerts() {
+    if (selectedFilter == 'All') return _sampleAlerts;
+
+    final filterMap = {
+      'Critical': ['CRITICAL', 'HIGH'],
+      'Warning': ['WARNING', 'MEDIUM'],
+      'Info': ['INFO', 'LOW'],
+    };
+
+    final allowed = filterMap[selectedFilter] ?? [];
+    return _sampleAlerts
+        .where((a) => allowed.contains(a['severity']))
+        .toList();
+  }
+
   Color _getSeverityColor(String? severity) {
     switch (severity?.toUpperCase()) {
       case 'CRITICAL':
@@ -204,7 +310,7 @@ class _AlertsPageState extends State<AlertsPage> {
         return Colors.orange;
       case 'INFO':
       case 'LOW':
-        return Colors.blue;
+        return Colors.green;
       default:
         return Colors.grey;
     }
@@ -228,7 +334,7 @@ class _AlertsPageState extends State<AlertsPage> {
 
   String _getTimeAgo(dynamic timestamp) {
     if (timestamp == null) return 'Just now';
-    
+
     DateTime dateTime;
     if (timestamp is Timestamp) {
       dateTime = timestamp.toDate();
@@ -380,7 +486,8 @@ class _AlertCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: severityColor,
                     borderRadius: BorderRadius.circular(12),
@@ -423,10 +530,7 @@ class _AlertCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () {
-                    // TODO: Show more details
-                    _showAlertDetails(context);
-                  },
+                  onPressed: () => _showAlertDetails(context),
                   child: const Text(
                     'View Details',
                     style: TextStyle(
@@ -462,7 +566,8 @@ class _AlertCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(description),
             const SizedBox(height: 12),
-            Text('Time: $time', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+            Text('Time: $time',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12)),
           ],
         ),
         actions: [

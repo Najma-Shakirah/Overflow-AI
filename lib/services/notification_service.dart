@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -7,25 +8,55 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
-    // Request permission
+    // Request permission (works on both web and mobile)
     NotificationSettings settings = await _messaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-
     print('Permission status: ${settings.authorizationStatus}');
 
-    // Handle foreground messages
+    // Initialize local notifications (Android only — not needed on web)
+    if (!kIsWeb) {
+      const AndroidInitializationSettings androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+      const InitializationSettings initSettings =
+          InitializationSettings(android: androidSettings);
+      await _localNotifications.initialize(settings: initSettings);
+    }
+
+    // For web, you need the VAPID key from Firebase Console
+    // Console → Project Settings → Cloud Messaging → Web Push certificates
+    if (kIsWeb) {
+      await _messaging.getToken(
+        vapidKey: 'BIm5hy8m_tj9cc0p_xIcDJwHFRE73wQyxSW1sEnYN1ctUlM9i_IKKAQaQCfKWTNpoX3G3-aevOE5TIp6QcdIkPY',
+      );
+    }
+
+    // Get and print FCM token (useful for testing)
+    String? token = await _messaging.getToken();
+    print('FCM Token: $token');
+
+    // Subscribe to topic
+    // Note: topic messaging on web requires token-based sending instead
+    if (!kIsWeb) {
+      await _messaging.subscribeToTopic('flood_alerts');
+    }
+
+    // Foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Foreground message: ${message.notification?.title}');
-      _showLocalNotification(message);
+      if (!kIsWeb) {
+        _showLocalNotification(message);
+      }
+      // On web, Firebase shows it automatically if app is in background,
+      // but foreground needs manual handling (e.g. a snackbar or dialog)
     });
 
-    // Handle notification taps
+    // Notification tap handler
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Notification opened: ${message.data}');
-      // Navigate to alert details page
+      print('Notification tapped: ${message.data}');
+      // Navigate to alerts page
     });
   }
 
@@ -44,19 +75,22 @@ class NotificationService {
         NotificationDetails(android: androidDetails);
 
     await _localNotifications.show(
-      message.hashCode,
-      message.notification?.title ?? 'Flood Alert',
-      message.notification?.body ?? 'Check the app for details',
-      notificationDetails,
+      id: message.hashCode,
+      title: message.notification?.title ?? 'Flood Alert',
+      body: message.notification?.body ?? 'Check the app for details',
+      notificationDetails: notificationDetails,
     );
   }
 
-  // Subscribe to location-specific alerts
   Future<void> subscribeToLocation(String location) async {
-    await _messaging.subscribeToTopic('flood_${location.toLowerCase()}');
+    if (!kIsWeb) {
+      await _messaging.subscribeToTopic('flood_${location.toLowerCase()}');
+    }
   }
 
   Future<void> unsubscribeFromLocation(String location) async {
-    await _messaging.unsubscribeFromTopic('flood_${location.toLowerCase()}');
+    if (!kIsWeb) {
+      await _messaging.unsubscribeFromTopic('flood_${location.toLowerCase()}');
+    }
   }
 }
