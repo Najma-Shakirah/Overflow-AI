@@ -285,21 +285,6 @@ class _AlertsPageState extends State<AlertsPage> {
     return query.snapshots();
   }
 
-  List<Map<String, dynamic>> _getFilteredSampleAlerts() {
-    if (selectedFilter == 'All') return _sampleAlerts;
-
-    final filterMap = {
-      'Critical': ['CRITICAL', 'HIGH'],
-      'Warning': ['WARNING', 'MEDIUM'],
-      'Info': ['INFO', 'LOW'],
-    };
-
-    final allowed = filterMap[selectedFilter] ?? [];
-    return _sampleAlerts
-        .where((a) => allowed.contains(a['severity']))
-        .toList();
-  }
-
   Color _getSeverityColor(String? severity) {
     switch (severity?.toUpperCase()) {
       case 'CRITICAL':
