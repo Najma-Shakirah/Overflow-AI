@@ -15,6 +15,7 @@ import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
 import 'screens/shelter/shelter_page.dart';
+import 'screens/splashscreen/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,8 +70,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
         '/': (context) => const MyHomePage(),
         '/alerts': (context) => const AlertsPage(),
         '/help': (context) => const HelpPage(),
