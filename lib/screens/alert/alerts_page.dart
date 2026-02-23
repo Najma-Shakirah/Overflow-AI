@@ -285,6 +285,17 @@ class _AlertsPageState extends State<AlertsPage> {
     return query.snapshots();
   }
 
+  List<Map<String, dynamic>> _getFilteredSampleAlerts() {
+    if (selectedFilter == 'All') {
+      return _sampleAlerts;
+    }
+    return _sampleAlerts
+        .where((alert) =>
+            alert['severity']?.toUpperCase() ==
+            selectedFilter.toUpperCase())
+        .toList();
+  }
+
   Color _getSeverityColor(String? severity) {
     switch (severity?.toUpperCase()) {
       case 'CRITICAL':
