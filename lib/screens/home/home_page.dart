@@ -33,11 +33,11 @@ class MyHomePage extends StatelessWidget {
                   children: [
                     Text(
                       'Hello, user',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -75,6 +75,7 @@ class MyHomePage extends StatelessWidget {
                         icon: Icons.house,
                         label: 'Shelters',
                         color: Colors.blue,
+                        routeName: '/shelters',
                       ),
                       _ServiceButton(
                         icon: Icons.post_add,
