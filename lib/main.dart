@@ -23,6 +23,8 @@ import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
 import 'screens/games/games_view.dart';  // ADD THIS
 import 'screens/splashscreen/splashscreen.dart';
+import 'package:provider/provider.dart';
+import 'package:overflow_ai/theme/liquid_theme.dart';
 
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -56,9 +58,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return  MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthWrapper(),
+       theme: LiquidTheme.lightTheme,
+       home: const AuthWrapper(),
     );
   }
 }
