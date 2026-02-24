@@ -82,6 +82,12 @@ class MyHomePage extends StatelessWidget {
                         color: Colors.green,
                         routeName: '/community',
                       ),
+                       _ServiceButton(
+                        icon: Icons.pending_actions,
+                        label: 'Games',
+                        color: Colors.red,
+                        routeName: '/games',
+                      ),
                     ],
                   ),
                 ],

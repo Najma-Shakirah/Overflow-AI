@@ -21,7 +21,8 @@ import 'screens/profile/profile_page.dart';
 import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
-
+import 'screens/games/games_view.dart';  // ADD THIS
+import 'screens/splashscreen/splashscreen.dart';
 
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -95,8 +96,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
         '/': (context) => const MyHomePage(),
         '/alerts': (context) => const AlertsPage(),
         '/help': (context) => const HelpPage(),
@@ -104,6 +106,7 @@ class MainApp extends StatelessWidget {
         '/monitor': (context) => const MonitorPage(),
         '/checklist': (context) => const ChecklistPage(),
         '/community': (context) => const CommunityPostsPage(),
+        '/games': (context) => const SnakeGamePage(),  
       },
     );
   }
