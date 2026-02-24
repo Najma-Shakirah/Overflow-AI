@@ -31,8 +31,8 @@ class Alert {
 class AlertsPageViewModel extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  List<Alert> _alerts = [];
-  bool _isLoading = false;
+  final List<Alert> _alerts = [];
+  final bool _isLoading = false;
   String? _error;
 
   List<Alert> get alerts => _alerts;

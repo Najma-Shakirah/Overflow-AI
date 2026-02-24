@@ -610,7 +610,7 @@
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: 'Category',
                     prefixIcon: const Icon(Icons.category),
@@ -1281,11 +1281,12 @@
           });
         }
       } catch (e) {
-        if (mounted)
+        if (mounted) {
           setState(() {
             _isUploadingImage = false;
             _error = 'Could not pick image. Please try again.';
           });
+        }
       }
     }
 
@@ -1430,7 +1431,7 @@
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  initialValue: _selectedCategory,
                   decoration: InputDecoration(
                     labelText: 'Category',
                     prefixIcon: const Icon(Icons.category),
