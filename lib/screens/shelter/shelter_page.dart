@@ -305,7 +305,9 @@ class _ShelterPageState extends State<ShelterPage> {
       },
     ];
 
-    for (final s in shelters) await col.add(s);
+    for (final s in shelters) {
+      await col.add(s);
+    }
   }
 
   @override
