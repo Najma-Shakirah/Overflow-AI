@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
 import 'screens/authentication/auth_viewmodel.dart';
+import 'screens/weather/weather_viewmodel.dart';
 
 // pages
 import 'screens/authentication/login_page.dart';
@@ -53,8 +54,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => AuthViewModel()..initialize(),
         ),
-        // Add more providers here as your app grows e.g.:
-        // ChangeNotifierProvider(create: (_) => AlertsPageViewModel()),
+        ChangeNotifierProvider(
+          create: (_) => WeatherViewModel(),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -92,7 +94,6 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use the viewmodel instead of a separate StreamBuilder
     final authState = context.watch<AuthViewModel>().state;
 
     switch (authState) {

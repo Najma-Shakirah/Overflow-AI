@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../navbar/navbar.dart';
+import '../weather/weather_viewmodel.dart';
+import '../weather/weather_model.dart';
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load weather when home page opens
+    Future.microtask(() =>
+        context.read<WeatherViewModel>().loadWeatherByLocation());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +58,10 @@ class MyHomePage extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       'Welcome back!',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: Colors.white70),
                     ),
                   ],
                 ),
@@ -118,11 +135,14 @@ class MyHomePage extends StatelessWidget {
   }
 }
 
+// ================= FLOOD INFO CARD (now uses real weather) =================
 class FloodInfoCard extends StatelessWidget {
   const FloodInfoCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<WeatherViewModel>();
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -137,163 +157,268 @@ class FloodInfoCard extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: vm.isLoading
+            ? const _LoadingWeather()
+            : vm.weather != null
+                ? _WeatherContent(weather: vm.weather!)
+                : _ErrorWeather(
+                    error: vm.error,
+                    onRetry: () => context
+                        .read<WeatherViewModel>()
+                        .loadWeatherByLocation(),
+                  ),
+      ),
+    );
+  }
+}
+
+class _LoadingWeather extends StatelessWidget {
+  const _LoadingWeather();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      height: 120,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _ErrorWeather extends StatelessWidget {
+  final String? error;
+  final VoidCallback onRetry;
+
+  const _ErrorWeather({this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, color: Colors.grey[400], size: 32),
+          const SizedBox(height: 8),
+          Text(
+            error ?? 'Could not load weather',
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+          ),
+          TextButton(onPressed: onRetry, child: const Text('Retry')),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeatherContent extends StatelessWidget {
+  final WeatherModel weather;
+
+  const _WeatherContent({required this.weather});
+
+  String get _floodRiskLabel {
+    if (weather.rainfall > 10) return 'HIGH';
+    if (weather.rainfall > 5) return 'MODERATE';
+    return 'LOW';
+  }
+
+  Color get _floodRiskColor {
+    if (weather.rainfall > 10) return Colors.red;
+    if (weather.rainfall > 5) return Colors.orange;
+    return Colors.green;
+  }
+
+  double get _riskFactor {
+    if (weather.rainfall > 10) return 0.9;
+    if (weather.rainfall > 5) return 0.6;
+    return 0.2;
+  }
+
+  IconData get _weatherIcon {
+    final condition = weather.condition.toLowerCase();
+    if (condition.contains('rain') || condition.contains('drizzle')) {
+      return Icons.grain;
+    } else if (condition.contains('thunder')) {
+      return Icons.thunderstorm;
+    } else if (condition.contains('cloud')) {
+      return Icons.cloud_queue;
+    } else if (condition.contains('clear')) {
+      return Icons.wb_sunny;
+    }
+    return Icons.cloud_queue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Weather
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          '24°',
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF3A83B7),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Icon(
-                            Icons.water_drop,
-                            color: Colors.blue[300],
-                            size: 20,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      '${weather.temperature.toStringAsFixed(0)}°',
+                      style: const TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF3A83B7),
+                      ),
                     ),
-                    const SizedBox(height: 2),
-                    const Text(
-                      'Kuala Lumpur',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    const SizedBox(width: 6),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Icon(
+                        Icons.water_drop,
+                        color: Colors.blue[300],
+                        size: 20,
+                      ),
                     ),
                   ],
                 ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3A83B7).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.cloud_queue,
-                    color: Color(0xFF3A83B7),
-                    size: 32,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Status and Risk Meter
-            Row(
-              children: [
-                const Text(
-                  'Flood Risk: ',
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                const SizedBox(height: 2),
+                Text(
+                  weather.location,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 Text(
-                  'MODERATE',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange[700],
-                  ),
+                  weather.condition,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                 ),
-                const Spacer(),
-                Icon(Icons.speed, color: Colors.orange[700], size: 20),
               ],
             ),
-            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3A83B7).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _weatherIcon,
+                color: const Color(0xFF3A83B7),
+                size: 32,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
 
-            // Risk Meter Bar
-            Stack(
-              children: [
-                Container(
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(10),
+        // Flood risk label
+        Row(
+          children: [
+            const Text(
+              'Flood Risk: ',
+              style: TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+            Text(
+              _floodRiskLabel,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: _floodRiskColor,
+              ),
+            ),
+            const Spacer(),
+            Icon(Icons.speed, color: _floodRiskColor, size: 20),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // Risk bar
+        Stack(
+          children: [
+            Container(
+              height: 6,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            FractionallySizedBox(
+              widthFactor: _riskFactor,
+              child: Container(
+                height: 6,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: _riskFactor > 0.7
+                        ? [Colors.orange, Colors.red]
+                        : [Colors.green, Colors.yellow, Colors.orange],
                   ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                FractionallySizedBox(
-                  widthFactor: 0.6,
-                  child: Container(
-                    height: 6,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Colors.green, Colors.yellow, Colors.orange],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+
+        // Stats row
+        Row(
+          children: [
+            Expanded(
+              child: _StatItem(
+                icon: Icons.water,
+                label: 'Rainfall',
+                value: '${weather.rainfall.toStringAsFixed(1)}mm',
+                color: Colors.blue,
+              ),
+            ),
+            Expanded(
+              child: _StatItem(
+                icon: Icons.water_drop_outlined,
+                label: 'Humidity',
+                value: '${weather.humidity.toInt()}%',
+                color: Colors.teal,
+              ),
+            ),
+            Expanded(
+              child: _StatItem(
+                icon: Icons.thermostat,
+                label: 'Temp',
+                value: '${weather.temperature.toStringAsFixed(1)}°C',
+                color: Colors.orange,
+              ),
+            ),
+          ],
+        ),
+
+        // Flood risk warning banner
+        if (weather.isFloodRisk) ...[
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.red[50],
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.red[700], size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '⚠️ High rainfall detected — flood risk in your area',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.red[700],
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-
-            // Stats Grid
-            Row(
-              children: [
-                Expanded(
-                  child: _StatItem(
-                    icon: Icons.water,
-                    label: 'Water Level',
-                    value: '2.4m',
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _StatItem(
-                    icon: Icons.trending_up,
-                    label: 'Rainfall',
-                    value: '45mm',
-                    color: Colors.indigo,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatItem(
-                    icon: Icons.location_on,
-                    label: 'Affected Areas',
-                    value: '12',
-                    color: Colors.red,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _StatItem(
-                    icon: Icons.groups,
-                    label: 'People Alerted',
-                    value: '3,240',
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            // Info Text
-            const Text(
-              'Stay alert and monitor updates regularly.',
-              style: TextStyle(fontSize: 11, color: Colors.grey),
-            ),
-          ],
-        ),
-      ),
+          ),
+        ],
+      ],
     );
   }
 }
@@ -313,34 +438,28 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.3), width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 20),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 13,
+            color: color,
           ),
-          const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-        ],
-      ),
+        ),
+        Text(
+          label,
+          style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+        ),
+      ],
     );
   }
 }
 
+// ================= SERVICE BUTTON =================
 class _ServiceButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -361,7 +480,7 @@ class _ServiceButton extends StatelessWidget {
         InkWell(
           onTap: () {
             if (routeName != null) {
-              Navigator.pushNamed(context, routeName!); // ← Uses named route
+              Navigator.pushNamed(context, routeName!);
             }
           },
           borderRadius: BorderRadius.circular(40),
@@ -389,6 +508,7 @@ class _ServiceButton extends StatelessWidget {
   }
 }
 
+// ================= NEWS CAROUSEL =================
 class NewsCarousel extends StatefulWidget {
   const NewsCarousel({super.key});
 
@@ -436,16 +556,13 @@ class _NewsCarouselState extends State<NewsCarousel> {
   @override
   void initState() {
     super.initState();
-    // Auto-scroll every 4 seconds
     Future.delayed(const Duration(seconds: 2), _autoScroll);
   }
 
   void _autoScroll() {
     if (!mounted) return;
-
     Future.delayed(const Duration(seconds: 4), () {
       if (!mounted) return;
-
       int nextPage = (_currentPage + 1) % _newsItems.length;
       _pageController.animateToPage(
         nextPage,
@@ -470,11 +587,7 @@ class _NewsCarouselState extends State<NewsCarousel> {
           height: 140,
           child: PageView.builder(
             controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
+            onPageChanged: (index) => setState(() => _currentPage = index),
             itemCount: _newsItems.length,
             itemBuilder: (context, index) {
               return Padding(
@@ -485,7 +598,6 @@ class _NewsCarouselState extends State<NewsCarousel> {
           ),
         ),
         const SizedBox(height: 12),
-        // Page indicator dots
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
