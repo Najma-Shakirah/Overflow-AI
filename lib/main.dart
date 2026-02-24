@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
+import 'services/ai_service.dart';
 import 'screens/authentication/auth_viewmodel.dart';
 import 'screens/weather/weather_viewmodel.dart';
 
@@ -20,16 +21,18 @@ import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
 import 'screens/shelter/shelter_page.dart';
+import 'screens/ai/photos_analyser_page.dart';
+import 'screens/ai/evacuation_plan_page.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Simple store for alert data passed in from notification tap
+// Store for alert data passed in via notification tap
 class PendingAlertStore {
   static Map<String, dynamic>? pending;
 }
 
-// Background message handler
+// Background FCM message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('Background message: ${message.messageId}');
@@ -45,6 +48,7 @@ void main() async {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
+  // Init notifications in background — don't block UI
   final notificationService = NotificationService();
   notificationService.initialize();
 
@@ -56,6 +60,10 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => WeatherViewModel(),
+        ),
+        // AIService is not a ChangeNotifier — use plain Provider
+        Provider(
+          create: (_) => AIService(),
         ),
       ],
       child: const MyApp(),
@@ -83,6 +91,8 @@ class MyApp extends StatelessWidget {
         '/checklist': (context) => const ChecklistPage(),
         '/community': (context) => const CommunityPostsPage(),
         '/shelters': (context) => const ShelterPage(),
+        '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
+        '/evacuation': (context) => const EvacuationPlanPage(),
       },
     );
   }

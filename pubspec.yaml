@@ -21,10 +21,12 @@ dependencies:
   firebase_messaging: ^16.1.1
   flutter_local_notifications: ^20.1.0
   cloud_firestore: ^6.1.2
-  image_picker: ^1.1.2 
+  image_picker: ^1.2.1 
   http: ^1.6.0  
   geolocator: ^14.0.2
   geocoding: ^4.0.0
+  firebase_ai: ^3.8.0
+  google_generative_ai: ^0.4.7
 
 dev_dependencies:
   flutter_test:
