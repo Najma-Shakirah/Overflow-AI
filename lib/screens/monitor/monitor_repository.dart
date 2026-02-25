@@ -9,7 +9,7 @@ class MonitorRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // ── OpenWeatherMap key (same as weather_repository) ──────────────────────
-  static const String _owmKey = 'YOUR_OPENWEATHERMAP_API_KEY';
+  static const String _owmKey = '26533d562a121ad3b28f6176a371175d';
 
   // ─────────────────────────────────────────────────────────────────────────
   // SENSOR STATIONS — from Firestore (real-time stream)
