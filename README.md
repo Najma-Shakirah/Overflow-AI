@@ -172,7 +172,7 @@ Overflow AI consists of:
 
 ---
 
-## 🛠Setup Instructions  
+## Setup Instructions  
 
 ```bash
 1. Clone the repository
