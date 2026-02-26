@@ -136,6 +136,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.green,
                         routeName: '/community',
                       ),
+                      _ServiceButton(
+  icon: Icons.newspaper,
+  label: 'Flood News',
+  color: Colors.blue,
+  routeName: '/news',   // add this
+),
                     ],
                   ),
                   const SizedBox(height: 16),
