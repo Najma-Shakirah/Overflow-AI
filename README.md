@@ -73,8 +73,9 @@ Unlike generic early warning systems, Overflow AI integrates prediction, mapping
 
 - **Flood Prediction AI** – Predicts potential flood risk using weather and environmental data  
 - **Real-Time Flood Map** – Displays affected and high-risk areas  
-- **Shelter Locator** – Shows nearest evacuation shelters  
-- **Alert & Notification System** – Sends timely emergency updates  
+- **Evacuation AI** – Shows nearest evacuation center
+- **Alert & Notification System** – Sends timely emergency updates
+- **Shelter Locator** – Shows available shelters information 
 - **Community Reporting** – Allows users to report real-time flood conditions  
 - **Gamified Flood Preparedness Education** – Interactive learning module  
 - **Emergency Checklist** – Personalized preparation checklist  
