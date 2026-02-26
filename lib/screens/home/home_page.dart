@@ -4,6 +4,7 @@ import '../navbar/navbar.dart';
 import '../weather/weather_viewmodel.dart';
 import '../weather/weather_model.dart';
 import '../../services/ai_service.dart';
+import '../../widgets/glass_container.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -16,7 +17,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    // Load weather when home page opens
     Future.microtask(
         () => context.read<WeatherViewModel>().loadWeatherByLocation());
   }
@@ -24,117 +24,66 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header ──
-            Container(
-              width: double.infinity,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(255, 46, 150, 199),
-                    Color.fromARGB(255, 29, 255, 142),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Hello, user',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Welcome back!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: Colors.white70),
-                    ),
-                  ],
-                ),
+      body: Stack(
+        children: [
+          // Background Image
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background5.jpeg'),
+                fit: BoxFit.cover,
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // ── Weather + AI Risk Cards ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  const FloodInfoCard(),
-                  const SizedBox(height: 14),
-                  const AIRiskCard(),
+          ),
+          
+          // Optional: Gradient overlay for better readability
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF00C6FF).withOpacity(0.3),
+                  const Color(0xFF0072FF).withOpacity(0.2),
                 ],
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // ── Section label: Services ──
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Services',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // ── Service Buttons (2 rows) ──
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _ServiceButton(
-                        icon: Icons.pending_actions,
-                        label: 'Checklist',
-                        color: Colors.red,
-                        routeName: '/checklist',
-                      ),
-                      _ServiceButton(
-                        icon: Icons.report,
-                        label: 'Report',
-                        color: Colors.orange,
-                      ),
-                      _ServiceButton(
-                        icon: Icons.house,
-                        label: 'Shelters',
-                        color: Colors.blue,
-                        routeName: '/shelters',
-                      ),
-                      _ServiceButton(
-                        icon: Icons.post_add,
-                        label: 'Community',
-                        color: Colors.green,
-                        routeName: '/community',
+          ),
+          
+          // Main Content
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Glass Header ──
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                  child: SafeArea(
+                    child: GlassContainer(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello, user',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Welcome back!',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.white70),
+                          ),
+                        ],
                       ),
                       _ServiceButton(
   icon: Icons.newspaper,
@@ -143,68 +92,230 @@ class _MyHomePageState extends State<MyHomePage> {
   routeName: '/news',   // add this
 ),
                     ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                ),
+
+                const SizedBox(height: 20),
+
+                // ── Weather + AI Risk Cards ──
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
                     children: [
-                      _ServiceButton(
-                        icon: Icons.camera_alt,
-                        label: 'Analyse Photo',
-                        color: Colors.purple,
-                        routeName: '/analyse-photo',
-                      ),
-                      _ServiceButton(
-                        icon: Icons.directions_run,
-                        label: 'Evacuate',
-                        color: Colors.deepOrange,
-                        routeName: '/evacuation',
-                      ),
-                      _ServiceButton(
-                        icon: Icons.notifications_active,
-                        label: 'Alerts',
-                        color: Colors.teal,
-                        routeName: '/alerts',
-                      ),
-                      _ServiceButton(
-                        icon: Icons.help_outline,
-                        label: 'Help',
-                        color: Colors.indigo,
-                        routeName: '/help',
-                      ),
+                      FloodInfoCard(),
+                      SizedBox(height: 14),
+                      AIRiskCard(),
                     ],
                   ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // ── Latest Updates ──
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Latest Updates',
-                style: TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: NewsCarousel(),
-            ),
 
-            const SizedBox(height: 120),
-          ],
-        ),
+                const SizedBox(height: 20),
+
+                // ── Section label: Services ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GlassContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.apps, color: Colors.white, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Services',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // ── Service Buttons Grid ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GlassContainer(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _GlassServiceButton(
+                              icon: Icons.pending_actions,
+                              label: 'Checklist',
+                              color: Colors.red,
+                              routeName: '/checklist',
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.report,
+                              label: 'Report',
+                              color: Colors.orange,
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.house,
+                              label: 'Shelters',
+                              color: Colors.blue,
+                              routeName: '/shelters',
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.post_add,
+                              label: 'Community',
+                              color: Colors.green,
+                              routeName: '/community',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _GlassServiceButton(
+                              icon: Icons.camera_alt,
+                              label: 'Analyse Photo',
+                              color: Colors.purple,
+                              routeName: '/analyse-photo',
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.directions_run,
+                              label: 'Evacuate',
+                              color: Colors.deepOrange,
+                              routeName: '/evacuation',
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.notifications_active,
+                              label: 'Alerts',
+                              color: Colors.teal,
+                              routeName: '/alerts',
+                            ),
+                            _GlassServiceButton(
+                              icon: Icons.videogame_asset,
+                              label: 'Games & Tips',
+                              color: Colors.indigo,
+                              routeName: '/game',
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── Latest Updates ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GlassContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.newspaper, color: Colors.white, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Latest Updates',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: NewsCarousel(),
+                ),
+
+                const SizedBox(height: 120),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: const MonitorFAB(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+// GLASS SERVICE BUTTON
+// ─────────────────────────────────────────────────────────
+class _GlassServiceButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final String? routeName;
+
+  const _GlassServiceButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.routeName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (routeName != null) {
+          Navigator.pushNamed(context, routeName!);
+        }
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withOpacity(0.8),
+                  color,
+                ],
+              ),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: 70,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -219,30 +330,17 @@ class FloodInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<WeatherViewModel>();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.07),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: vm.isLoading
-            ? const _LoadingWeather()
-            : vm.weather != null
-                ? _WeatherContent(weather: vm.weather!)
-                : _ErrorWeather(
-                    error: vm.error,
-                    onRetry: () =>
-                        context.read<WeatherViewModel>().loadWeatherByLocation(),
-                  ),
-      ),
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: vm.isLoading
+          ? const _LoadingWeather()
+          : vm.weather != null
+              ? _WeatherContent(weather: vm.weather!)
+              : _ErrorWeather(
+                  error: vm.error,
+                  onRetry: () =>
+                      context.read<WeatherViewModel>().loadWeatherByLocation(),
+                ),
     );
   }
 }
@@ -252,7 +350,7 @@ class _LoadingWeather extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const SizedBox(
         height: 100,
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(child: CircularProgressIndicator(color: Colors.white)),
       );
 }
 
@@ -268,11 +366,14 @@ class _ErrorWeather extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.cloud_off, color: Colors.grey[400], size: 32),
+          Icon(Icons.cloud_off, color: Colors.white.withOpacity(0.6), size: 32),
           const SizedBox(height: 8),
           Text(error ?? 'Could not load weather',
-              style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-          TextButton(onPressed: onRetry, child: const Text('Retry')),
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          TextButton(
+            onPressed: onRetry,
+            child: const Text('Retry', style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );
@@ -331,33 +432,30 @@ class _WeatherContent extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF3A83B7),
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Icon(Icons.water_drop,
-                          color: Colors.blue[300], size: 20),
+                          color: Colors.white.withOpacity(0.8), size: 20),
                     ),
                   ],
                 ),
                 Text(weather.location,
-                    style: const TextStyle(
-                        fontSize: 14, color: Colors.grey)),
+                    style: const TextStyle(fontSize: 14, color: Colors.white70)),
                 Text(weather.condition,
-                    style: TextStyle(
-                        fontSize: 12, color: Colors.grey[500])),
+                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.6))),
               ],
             ),
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF3A83B7).withOpacity(0.1),
+                color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(_weatherIcon,
-                  color: const Color(0xFF3A83B7), size: 32),
+              child: Icon(_weatherIcon, color: Colors.white, size: 32),
             ),
           ],
         ),
@@ -367,12 +465,10 @@ class _WeatherContent extends StatelessWidget {
         Row(
           children: [
             const Text('Flood Risk: ',
-                style: TextStyle(fontSize: 13, color: Colors.grey)),
+                style: TextStyle(fontSize: 13, color: Colors.white70)),
             Text(_riskLabel,
                 style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: _riskColor)),
+                    fontSize: 13, fontWeight: FontWeight.bold, color: _riskColor)),
             const Spacer(),
             Icon(Icons.speed, color: _riskColor, size: 18),
           ],
@@ -385,7 +481,7 @@ class _WeatherContent extends StatelessWidget {
             Container(
               height: 6,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Colors.white.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -415,7 +511,6 @@ class _WeatherContent extends StatelessWidget {
                 icon: Icons.water,
                 label: 'Rainfall',
                 value: '${weather.rainfall.toStringAsFixed(1)}mm',
-                color: Colors.blue,
               ),
             ),
             Expanded(
@@ -423,7 +518,6 @@ class _WeatherContent extends StatelessWidget {
                 icon: Icons.water_drop_outlined,
                 label: 'Humidity',
                 value: '${weather.humidity.toInt()}%',
-                color: Colors.teal,
               ),
             ),
             Expanded(
@@ -431,7 +525,6 @@ class _WeatherContent extends StatelessWidget {
                 icon: Icons.air,
                 label: 'Wind',
                 value: '${weather.windSpeed.toStringAsFixed(1)}m/s',
-                color: Colors.indigo,
               ),
             ),
             Expanded(
@@ -439,7 +532,6 @@ class _WeatherContent extends StatelessWidget {
                 icon: Icons.thermostat,
                 label: 'Feels',
                 value: '${weather.feelsLike.toStringAsFixed(0)}°C',
-                color: Colors.orange,
               ),
             ),
           ],
@@ -450,24 +542,22 @@ class _WeatherContent extends StatelessWidget {
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.red[50],
+              color: Colors.red.withOpacity(0.2),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.red.shade200),
+              border: Border.all(color: Colors.red.withOpacity(0.5)),
             ),
             child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: Colors.red[700], size: 18),
+                Icon(Icons.warning_amber_rounded, color: Colors.red[300], size: 18),
                 const SizedBox(width: 8),
-                Expanded(
+                const Expanded(
                   child: Text(
                     '⚠️ High rainfall detected — flood risk in your area',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.red[700],
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -485,26 +575,24 @@ class _StatItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final Color color;
 
   const _StatItem({
     required this.icon,
     required this.label,
     required this.value,
-    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 18),
+        Icon(icon, color: Colors.white, size: 18),
         const SizedBox(height: 4),
         Text(value,
-            style: TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: color)),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white)),
         Text(label,
-            style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+            style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7))),
       ],
     );
   }
@@ -528,7 +616,6 @@ class _AIRiskCardState extends State<AIRiskCard> {
   @override
   void initState() {
     super.initState();
-    // Wait for weather to be available then run AI analysis
     WidgetsBinding.instance.addPostFrameCallback((_) => _runAnalysis());
   }
 
@@ -557,34 +644,22 @@ class _AIRiskCardState extends State<AIRiskCard> {
 
   @override
   Widget build(BuildContext context) {
-    // If weather hasn't loaded yet, wait
     final weather = context.watch<WeatherViewModel>().weather;
     if (weather == null && !_isLoading) return const SizedBox.shrink();
 
     if (_isLoading) {
-      return Container(
+      return GlassContainer(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
         child: Row(
           children: [
             const SizedBox(
               width: 18,
               height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
             ),
             const SizedBox(width: 12),
             Text('AI analysing flood risk...',
-                style: TextStyle(fontSize: 13, color: Colors.grey[600])),
+                style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.8))),
           ],
         ),
       );
@@ -596,19 +671,7 @@ class _AIRiskCardState extends State<AIRiskCard> {
 
     return GestureDetector(
       onTap: () => setState(() => _expanded = !_expanded),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: a.riskColor.withOpacity(0.35), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: a.riskColor.withOpacity(0.07),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      child: GlassContainer(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,21 +682,19 @@ class _AIRiskCardState extends State<AIRiskCard> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: a.riskColor.withOpacity(0.1),
+                    color: a.riskColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child:
-                      Icon(Icons.smart_toy, color: a.riskColor, size: 18),
+                  child: Icon(Icons.smart_toy, color: Colors.white, size: 18),
                 ),
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text('AI Flood Risk Analysis',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14)),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: a.riskColor,
                     borderRadius: BorderRadius.circular(12),
@@ -641,17 +702,13 @@ class _AIRiskCardState extends State<AIRiskCard> {
                   child: Text(
                     a.riskLevel,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold),
+                        color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Icon(
-                  _expanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: Colors.grey,
+                  _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white70,
                   size: 20,
                 ),
               ],
@@ -662,17 +719,15 @@ class _AIRiskCardState extends State<AIRiskCard> {
             Row(
               children: [
                 Text('Risk score: ${a.riskScore}/100',
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    style: const TextStyle(fontSize: 12, color: Colors.white70)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
                       value: a.riskScore / 100,
-                      backgroundColor: Colors.grey[200],
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(a.riskColor),
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(a.riskColor),
                       minHeight: 6,
                     ),
                   ),
@@ -681,43 +736,34 @@ class _AIRiskCardState extends State<AIRiskCard> {
             ),
             const SizedBox(height: 8),
 
-            Text(a.summary,
-                style: const TextStyle(fontSize: 13, height: 1.4)),
+            Text(a.summary, style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.white)),
 
             // Expanded details
             if (_expanded) ...[
               const SizedBox(height: 14),
-              const Divider(),
+              Divider(color: Colors.white.withOpacity(0.3)),
               const SizedBox(height: 10),
 
               const Text('📅 Forecast',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
               const SizedBox(height: 6),
               Text(a.forecast,
-                  style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[700],
-                      height: 1.4)),
+                  style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9), height: 1.4)),
 
               if (a.riskFactors.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text('⚠️ Risk Factors',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
                 const SizedBox(height: 6),
                 ...a.riskFactors.map((f) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.circle,
-                              size: 6, color: a.riskColor),
+                          Icon(Icons.circle, size: 6, color: a.riskColor),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: Text(f,
-                                  style:
-                                      const TextStyle(fontSize: 12))),
+                              child: Text(f, style: const TextStyle(fontSize: 12, color: Colors.white))),
                         ],
                       ),
                     )),
@@ -726,21 +772,18 @@ class _AIRiskCardState extends State<AIRiskCard> {
               if (a.recommendations.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text('✅ Recommendations',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
                 const SizedBox(height: 6),
                 ...a.recommendations.map((r) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.check_circle_outline,
-                              size: 16, color: Color(0xFF3A83B7)),
+                          const Icon(Icons.check_circle_outline, size: 16, color: Colors.white70),
                           const SizedBox(width: 8),
                           Expanded(
                               child: Text(r,
-                                  style: const TextStyle(
-                                      fontSize: 12, height: 1.3))),
+                                  style: const TextStyle(fontSize: 12, height: 1.3, color: Colors.white))),
                         ],
                       ),
                     )),
@@ -751,74 +794,14 @@ class _AIRiskCardState extends State<AIRiskCard> {
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: _runAnalysis,
-                  icon: const Icon(Icons.refresh, size: 14),
-                  label: const Text('Refresh',
-                      style: TextStyle(fontSize: 12)),
+                  icon: const Icon(Icons.refresh, size: 14, color: Colors.white),
+                  label: const Text('Refresh', style: TextStyle(fontSize: 12, color: Colors.white)),
                 ),
               ),
             ],
           ],
         ),
       ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────
-// SERVICE BUTTON
-// ─────────────────────────────────────────────────────────
-class _ServiceButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final String? routeName;
-
-  const _ServiceButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    this.routeName,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            if (routeName != null) {
-              Navigator.pushNamed(context, routeName!);
-            }
-          },
-          borderRadius: BorderRadius.circular(40),
-          child: Container(
-            width: 54,
-            height: 54,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 26),
-          ),
-        ),
-        const SizedBox(height: 6),
-        SizedBox(
-          width: 64,
-          child: Text(
-            label,
-            style: TextStyle(fontSize: 11, color: color),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ),
-      ],
     );
   }
 }
@@ -840,32 +823,28 @@ class _NewsCarouselState extends State<NewsCarousel> {
   final List<_NewsItem> _newsItems = [
     _NewsItem(
       title: 'Emergency Services on High Alert',
-      description:
-          'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
+      description: 'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
       time: '15 mins ago',
       category: 'Emergency',
       categoryColor: Colors.red,
     ),
     _NewsItem(
       title: 'Water Levels Rising in Klang Valley',
-      description:
-          'Authorities warn residents to stay vigilant as rainfall continues',
+      description: 'Authorities warn residents to stay vigilant as rainfall continues',
       time: '1 hour ago',
       category: 'Warning',
       categoryColor: Colors.orange,
     ),
     _NewsItem(
       title: 'Relief Centers Opened',
-      description:
-          '8 temporary shelters now available for displaced residents',
+      description: '8 temporary shelters now available for displaced residents',
       time: '2 hours ago',
       category: 'Relief',
       categoryColor: Colors.blue,
     ),
     _NewsItem(
       title: 'Road Closures Updated',
-      description:
-          'Major highways affected — check latest route information',
+      description: 'Major highways affected — check latest route information',
       time: '3 hours ago',
       category: 'Traffic',
       categoryColor: Colors.purple,
@@ -925,9 +904,7 @@ class _NewsCarouselState extends State<NewsCarousel> {
               width: _currentPage == i ? 24 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: _currentPage == i
-                    ? const Color(0xFF3A83B7)
-                    : Colors.grey[300],
+                color: _currentPage == i ? Colors.white : Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -960,72 +937,50 @@ class _NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            item.categoryColor.withOpacity(0.1),
-            item.categoryColor.withOpacity(0.04),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: item.categoryColor.withOpacity(0.3), width: 1),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: item.categoryColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    item.category.toUpperCase(),
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold),
-                  ),
+    return GlassContainer(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: item.categoryColor,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const Spacer(),
-                Icon(Icons.access_time,
-                    size: 14, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(item.time,
-                    style:
-                        TextStyle(fontSize: 12, color: Colors.grey[600])),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              item.title,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
+                child: Text(
+                  item.category.toUpperCase(),
+                  style: const TextStyle(
+                      color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                ),
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              const Spacer(),
+              Icon(Icons.access_time, size: 14, color: Colors.white70),
+              const SizedBox(width: 4),
+              Text(item.time, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            item.title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
-            const SizedBox(height: 4),
-            Text(
-              item.description,
-              style: TextStyle(
-                  fontSize: 12, color: Colors.grey[700], height: 1.3),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            item.description,
+            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.9), height: 1.3),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

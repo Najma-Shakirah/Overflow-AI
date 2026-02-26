@@ -25,6 +25,8 @@ import 'screens/shelter/shelter_page.dart';
 import 'screens/ai/photos_analyser_page.dart';
 import 'screens/ai/evacuation_plan_page.dart';
 import 'screens/news/news_page.dart';
+import 'screens/splashscreen/splashscreen.dart';
+import 'screens/games/game_view.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -83,8 +85,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      initialRoute: '/',
+      initialRoute: '/splashscreen',
       routes: {
+        '/splashscreen': (context) => const SplashScreen(),
         '/': (context) => const AuthWrapper(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
@@ -97,7 +100,8 @@ class MyApp extends StatelessWidget {
         '/shelters': (context) => const ShelterPage(),
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
         '/evacuation': (context) => const EvacuationPlanPage(),
-        '/news': (context) => const NewsPage(),
+        '/news': (context) => const NewsPage(), 
+        '/game': (context) => const SnakeGamePage(), 
       },
     );
   }
@@ -135,3 +139,20 @@ class MainApp extends StatelessWidget {
     return const MyHomePage();
   }
 }
+/*
+// offline 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Init Firebase
+  await Firebase.initializeApp();
+
+  // 2. Enable Firestore offline persistence ← THIS IS THE ONE LINE
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
+  runApp(const MyApp());
+}
+*/
