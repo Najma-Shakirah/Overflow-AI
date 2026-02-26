@@ -31,6 +31,8 @@ dependencies:
   firebase_ai: ^3.8.0
   google_generative_ai: ^0.4.7
   url_launcher: ^6.3.2
+  shared_preferences: ^2.2.2
+
 
 dev_dependencies:
   flutter_test:
@@ -52,3 +54,6 @@ flutter:
     - assets/images/backgroundd.jpeg
     - assets/images/background5.jpeg
     - assets/images/background4.jpeg
+    - assets/images/game.jpg
+    - assets/images/snake.png
+    - assets/images/sponge.jpg

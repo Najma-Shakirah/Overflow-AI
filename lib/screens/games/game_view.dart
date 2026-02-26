@@ -38,7 +38,6 @@ class _SnakeGameView extends StatelessWidget {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            Text('Snake Length: ${stats.snakeLength}'),
             Text('Correct Answers: ${stats.correctAnswers}'),
             Text('Wrong Answers: ${stats.wrongAnswers}'),
           ],
@@ -67,7 +66,7 @@ class _SnakeGameView extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isCorrect ? '✓ Correct! +20 points' : '✗ Wrong! -5 points',
+          isCorrect ? '✓ Correct! +10 points' : '✗ Wrong! -5 points',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: isCorrect ? Colors.green : Colors.red,
@@ -129,25 +128,46 @@ class _SnakeGameView extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       // Game Board
-                      Expanded(
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: 1,
-                            child: Container(
-                              margin: const EdgeInsets.all(16),
-                              child: viewModel.gameState == GameState.notStarted
-                                  ? StartScreen(
-                                      onStart: () => viewModel.startGame(),
-                                    )
-                                  : GameGrid(
-                                      snake: viewModel.snake,
-                                      food: viewModel.food,
-                                      gridSize: viewModel.gridSize,
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
+                // Inside _SnakeGameView's build method, replace the Game Board section:
+Expanded(
+  child: Center(
+    child: AspectRatio(
+      aspectRatio: 1,
+      child: Container(
+        margin: const EdgeInsets.all(16),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // The Grid (Always there once started)
+            viewModel.gameState == GameState.notStarted
+                ? StartScreen(onStart: () => viewModel.startGame())
+                : GameGrid(
+                    snake: viewModel.snake,
+                    food: viewModel.food,
+                    gridSize: viewModel.gridSize,
+                  ),
+
+            // The Countdown Overlay
+            if (viewModel.gameState == GameState.countdown)
+              Container(
+                color: Colors.black26, // Dim the grid slightly
+                alignment: Alignment.center,
+                child: Text(
+                  '${viewModel.countdownValue}',
+                  style: const TextStyle(
+                    fontSize: 100,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    shadows: [Shadow(blurRadius: 10, color: Colors.black)],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
 
                       // Controls
                       if (viewModel.isPlaying)

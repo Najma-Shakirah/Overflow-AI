@@ -85,16 +85,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
-                      _ServiceButton(
-  icon: Icons.newspaper,
-  label: 'Flood News',
-  color: Colors.blue,
-  routeName: '/news',   // add this
-),
-                    ],
+                  
                     ),
                   ),
                 ),
+    
 
                 const SizedBox(height: 20),
 
@@ -146,10 +141,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _GlassServiceButton(
-                              icon: Icons.pending_actions,
-                              label: 'Checklist',
+                              icon: Icons.newspaper,
+                              label: 'Flood News',
                               color: Colors.red,
-                              routeName: '/checklist',
+                              routeName: '/news',
                             ),
                             _GlassServiceButton(
                               icon: Icons.report,
@@ -196,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               icon: Icons.videogame_asset,
                               label: 'Games & Tips',
                               color: Colors.indigo,
-                              routeName: '/game',
+                              routeName: '/gamedashboard',
                             ),
                           ],
                         ),
