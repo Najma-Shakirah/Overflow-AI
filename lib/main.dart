@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
+import 'services/ai_service.dart';
+import 'screens/authentication/auth_viewmodel.dart';
+import 'screens/weather/weather_viewmodel.dart';
+import 'screens/news/news_viewmodel.dart';
 
 // pages
-import 'login_page.dart';
-
-// your real app pages
+import 'screens/authentication/login_page.dart';
+import 'screens/authentication/register_page.dart';
 import 'screens/home/home_page.dart';
 import 'screens/alert/alerts_page.dart';
 import 'screens/help/help_page.dart';
@@ -15,14 +22,59 @@ import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
 import 'screens/shelter/shelter_page.dart';
-import 'screens/splashscreen/splash_screen.dart';
+import 'screens/ai/photos_analyser_page.dart';
+import 'screens/ai/evacuation_plan_page.dart';
+import 'screens/news/news_page.dart';
+import 'screens/splashscreen/splashscreen.dart';
+import 'screens/games/game_view.dart';
+
+// Global navigator key — used to navigate from notification taps
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+// Store for alert data passed in via notification tap
+class PendingAlertStore {
+  static Map<String, dynamic>? pending;
+}
+
+// Background FCM message handler
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Background message: ${message.messageId}');
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  if (!kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
+
+  // Init notifications in background — don't block UI
+  final notificationService = NotificationService();
+  notificationService.initialize();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthViewModel()..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WeatherViewModel(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => NewsViewModel()
+        ),
+        Provider(
+          create: (_) => AIService(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -30,9 +82,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthWrapper(),
+      navigatorKey: navigatorKey,
+      initialRoute: '/splashscreen',
+      routes: {
+        '/splashscreen': (context) => const SplashScreen(),
+        '/': (context) => const AuthWrapper(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/alerts': (context) => const AlertsPage(),
+        '/help': (context) => const HelpPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/monitor': (context) => const MonitorPage(),
+        '/checklist': (context) => const ChecklistPage(),
+        '/community': (context) => const CommunityPostsPage(),
+        '/shelters': (context) => const ShelterPage(),
+        '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
+        '/evacuation': (context) => const EvacuationPlanPage(),
+        '/news': (context) => const NewsPage(), 
+        '/game': (context) => const SnakeGamePage(), 
+      },
     );
   }
 }
@@ -43,22 +113,20 @@ class AuthWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
+    final authState = context.watch<AuthViewModel>().state;
 
-        if (snapshot.hasData) {
-          return const MainApp();
-        }
-
+    switch (authState) {
+      case AuthState.initial:
+      case AuthState.loading:
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      case AuthState.authenticated:
+        return const MainApp();
+      case AuthState.unauthenticated:
+      case AuthState.error:
         return const LoginPage();
-      },
-    );
+    }
   }
 }
 
@@ -68,20 +136,23 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (context) => const SplashScreen(),
-        '/': (context) => const MyHomePage(),
-        '/alerts': (context) => const AlertsPage(),
-        '/help': (context) => const HelpPage(),
-        '/profile': (context) => const ProfilePage(),
-        '/monitor': (context) => const MonitorPage(),
-        '/checklist': (context) => const ChecklistPage(),
-        '/community': (context) => const CommunityPostsPage(),
-        '/shelters': (context) => const ShelterPage(),
-      },
-    );
+    return const MyHomePage();
   }
 }
+/*
+// offline 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Init Firebase
+  await Firebase.initializeApp();
+
+  // 2. Enable Firestore offline persistence ← THIS IS THE ONE LINE
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
+  runApp(const MyApp());
+}
+*/

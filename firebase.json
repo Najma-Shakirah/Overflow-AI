@@ -1,1 +1,43 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"overflowai","appId":"1:841934933765:android:aa4dcbeae7e881d603b16c","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"overflowai","configurations":{"android":"1:841934933765:android:aa4dcbeae7e881d603b16c","ios":"1:841934933765:ios:82a2c8500b25c31a03b16c","macos":"1:841934933765:ios:82a2c8500b25c31a03b16c","web":"1:841934933765:web:f5f43a78bc34d02f03b16c","windows":"1:841934933765:web:722934420fbdd75803b16c"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "overflowai",
+          "appId": "1:841934933765:android:aa4dcbeae7e881d603b16c",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "overflowai",
+          "configurations": {
+            "android": "1:841934933765:android:aa4dcbeae7e881d603b16c",
+            "ios": "1:841934933765:ios:82a2c8500b25c31a03b16c",
+            "macos": "1:841934933765:ios:82a2c8500b25c31a03b16c",
+            "web": "1:841934933765:web:f5f43a78bc34d02f03b16c",
+            "windows": "1:841934933765:web:722934420fbdd75803b16c"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix functions run lint",
+        "npm --prefix functions run build"
+      ]
+    }
+  ]
+}
