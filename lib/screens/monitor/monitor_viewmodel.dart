@@ -21,10 +21,9 @@ class MonitorViewModel extends ChangeNotifier {
   SensorStation? _selectedStation;
   MapLayerState _layers = const MapLayerState();
   bool _isLoading = true;
+  bool _isOffline = false;          // ← NEW
   bool _isSubmittingClosure = false;
   String? _error;
-
-  // Map center — defaults to KL
   LatLng _mapCenter = const LatLng(3.1390, 101.6869);
 
   // ── Getters ───────────────────────────────────────────────────────────────
@@ -35,11 +34,11 @@ class MonitorViewModel extends ChangeNotifier {
   SensorStation? get selectedStation => _selectedStation;
   MapLayerState get layers => _layers;
   bool get isLoading => _isLoading;
+  bool get isOffline => _isOffline;  // ← NEW
   bool get isSubmittingClosure => _isSubmittingClosure;
   String? get error => _error;
   LatLng get mapCenter => _mapCenter;
 
-  // ── Derived stats ─────────────────────────────────────────────────────────
   int get dangerStationCount =>
       _stations.where((s) => s.status == StationStatus.danger).length;
   int get warningStationCount =>
@@ -48,37 +47,36 @@ class MonitorViewModel extends ChangeNotifier {
 
   SensorStation? get mostCriticalStation {
     if (_stations.isEmpty) return null;
-    return _stations.reduce((a, b) => a.waterLevel > b.waterLevel ? a : b);
+    return _stations
+        .reduce((a, b) => a.waterLevel > b.waterLevel ? a : b);
   }
 
-  // Overall flood situation
   FloodSituation get overallSituation {
     if (dangerStationCount > 0) return FloodSituation.danger;
     if (warningStationCount > 0) return FloodSituation.warning;
     return FloodSituation.normal;
   }
 
-  // ── Stream subscriptions ──────────────────────────────────────────────────
+  // ── Subscriptions ─────────────────────────────────────────────────────────
   StreamSubscription<List<SensorStation>>? _stationSub;
   StreamSubscription<List<FloodZone>>? _zoneSub;
   StreamSubscription<List<RoadClosure>>? _closureSub;
 
-  void _init() {
+  Future<void> _init() async {
     _isLoading = true;
+    _isOffline = await _repo.isOffline;   // ← check connectivity once
     notifyListeners();
 
-    // Watch stations from Firestore
+    // Stations — Firestore online, Hive cache offline
     _stationSub = _repo.watchStations().listen(
       (stations) {
-        _stations = stations.isEmpty ? _repo.mockStations : stations;
+        _stations = stations;
         _isLoading = false;
         _error = null;
         notifyListeners();
-        // Load history for selected/most critical station
         _loadHistory();
       },
-      onError: (e) {
-        // Fall back to mock data on Firestore error (e.g. offline)
+      onError: (_) {
         _stations = _repo.mockStations;
         _isLoading = false;
         notifyListeners();
@@ -86,10 +84,10 @@ class MonitorViewModel extends ChangeNotifier {
       },
     );
 
-    // Watch flood zones
+    // Flood zones — Firestore online, Hive cache offline
     _zoneSub = _repo.watchFloodZones().listen(
       (zones) {
-        _floodZones = zones.isEmpty ? _repo.mockFloodZones : zones;
+        _floodZones = zones;
         notifyListeners();
       },
       onError: (_) {
@@ -98,14 +96,16 @@ class MonitorViewModel extends ChangeNotifier {
       },
     );
 
-    // Watch road closures
-    _closureSub = _repo.watchRoadClosures().listen(
-      (closures) {
-        _roadClosures = closures;
-        notifyListeners();
-      },
-      onError: (_) {},
-    );
+    // Road closures — online only, skip entirely when offline
+    if (!_isOffline) {
+      _closureSub = _repo.watchRoadClosures().listen(
+        (closures) {
+          _roadClosures = closures;
+          notifyListeners();
+        },
+        onError: (_) {},
+      );
+    }
   }
 
   Future<void> _loadHistory() async {
@@ -120,7 +120,6 @@ class MonitorViewModel extends ChangeNotifier {
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
-
   void selectStation(SensorStation station) {
     _selectedStation = station;
     _mapCenter = station.location;
@@ -136,16 +135,20 @@ class MonitorViewModel extends ChangeNotifier {
   void toggleLayer(String layer) {
     switch (layer) {
       case 'floodZones':
-        _layers = _layers.copyWith(showFloodZones: !_layers.showFloodZones);
+        _layers =
+            _layers.copyWith(showFloodZones: !_layers.showFloodZones);
         break;
       case 'stations':
-        _layers = _layers.copyWith(showStations: !_layers.showStations);
+        _layers =
+            _layers.copyWith(showStations: !_layers.showStations);
         break;
       case 'roadClosures':
-        _layers = _layers.copyWith(showRoadClosures: !_layers.showRoadClosures);
+        _layers = _layers.copyWith(
+            showRoadClosures: !_layers.showRoadClosures);
         break;
       case 'heatmap':
-        _layers = _layers.copyWith(showHeatmap: !_layers.showHeatmap);
+        _layers =
+            _layers.copyWith(showHeatmap: !_layers.showHeatmap);
         break;
     }
     notifyListeners();
@@ -156,9 +159,9 @@ class MonitorViewModel extends ChangeNotifier {
     required String description,
     required String reportedBy,
   }) async {
+    if (_isOffline) return;  // guard — button is hidden in UI but guard here too
     _isSubmittingClosure = true;
     notifyListeners();
-
     try {
       await _repo.reportRoadClosure(
         location: location,
@@ -168,30 +171,28 @@ class MonitorViewModel extends ChangeNotifier {
     } catch (e) {
       _error = 'Failed to submit road closure report.';
     }
-
     _isSubmittingClosure = false;
     notifyListeners();
   }
 
   Future<void> confirmRoadClosure(String closureId) async {
+    if (_isOffline) return;
     try {
       await _repo.confirmRoadClosure(closureId);
     } catch (e) {
-      print('confirmRoadClosure error: $e');
+      debugPrint('confirmRoadClosure error: $e');
     }
   }
 
   Future<void> refresh() async {
-    _isLoading = true;
-    notifyListeners();
-    await _loadHistory();
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  void centerOnStation(SensorStation station) {
-    _mapCenter = station.location;
-    notifyListeners();
+    // Cancel existing subscriptions and re-init with fresh connectivity check
+    await _stationSub?.cancel();
+    await _zoneSub?.cancel();
+    await _closureSub?.cancel();
+    _stations = [];
+    _floodZones = [];
+    _roadClosures = [];
+    await _init();
   }
 
   @override
