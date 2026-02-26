@@ -1,0 +1,288 @@
+// functions/src/getFloodSocialMedia.ts
+// Deploy with: firebase deploy --only functions
+
+import {onRequest} from "firebase-functions/v2/https";
+import {defineSecret} from "firebase-functions/params";
+import axios from "axios";
+
+// ── Secrets ─────────────────────────────────────────────
+const xBearerToken = defineSecret("X_BEARER_TOKEN");
+const apifyToken = defineSecret("APIFY_TOKEN");
+const newsdataKey = defineSecret("NEWSDATA_KEY");
+
+// ── Types ───────────────────────────────────────────────
+interface FloodNewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  originalText?: string;
+  source: string;
+  url: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  timestamp: string;
+  author?: string;
+  engagementCount?: number;
+  location?: string;
+  verificationStatus: string;
+  isBreaking: boolean;
+}
+
+// ── Main Function ───────────────────────────────────────
+export const getFloodSocialMedia = onRequest(
+  {
+    timeoutSeconds: 30,
+    memory: "256MiB",
+    secrets: [xBearerToken, apifyToken, newsdataKey],
+  },
+  async (req, res) => {
+    res.set("Access-Control-Allow-Origin", "*");
+    if (req.method === "OPTIONS") {
+      res.status(204).send("");
+      return;
+    }
+
+    const {state = "Selangor", district = "Shah Alam"} = req.body || {};
+
+    const X_BEARER = xBearerToken.value();
+    const APIFY_TOK = apifyToken.value();
+
+    const results = await Promise.allSettled([
+      fetchFromX(X_BEARER, state, district),
+      fetchFromTikTok(APIFY_TOK, district),
+      fetchFromFacebook(APIFY_TOK, district),
+    ]);
+
+    const allItems: FloodNewsItem[] = [];
+
+    for (const result of results) {
+      if (result.status === "fulfilled") {
+        allItems.push(...result.value);
+      }
+    }
+
+    allItems.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() -
+        new Date(a.timestamp).getTime()
+    );
+
+    res.json(allItems);
+  }
+);
+
+// ── X (Twitter) ─────────────────────────────────────────
+async function fetchFromX(
+  bearer: string,
+  state: string,
+  district: string
+): Promise<FloodNewsItem[]> {
+  if (!bearer) return mockXItems(district);
+
+  const query = encodeURIComponent(
+    `(#DaruratBanjir OR #Banjir${state.replace(" ", "")} OR "banjir ${district}" OR "flood ${district}") lang:ms OR lang:en -is:retweet`
+  );
+
+  const url = `https://api.twitter.com/2/tweets/search/recent?query=${query}&max_results=10&tweet.fields=created_at,author_id,public_metrics&expansions=author_id&user.fields=username`;
+
+  try {
+    const resp = await axios.get<any>(url, {
+      headers: {Authorization: `Bearer ${bearer}`},
+      timeout: 8000,
+    });
+
+    const tweets = (resp.data?.data ?? []) as any[];
+    const users: Record<string, any> = {};
+
+    ((resp.data?.includes?.users ?? []) as any[]).forEach((u) => {
+      users[u.id] = u;
+    });
+
+    return tweets.map((tweet) => {
+      const user = users[tweet.author_id] || {};
+      const metrics = tweet.public_metrics || {};
+
+      return {
+        id: `x_${tweet.id}`,
+        title:
+          tweet.text.substring(0, 80) +
+          (tweet.text.length > 80 ? "..." : ""),
+        summary: tweet.text,
+        originalText: tweet.text,
+        source: "x",
+        url: `https://x.com/${user.username}/status/${tweet.id}`,
+        timestamp: tweet.created_at,
+        author: user.username ? `@${user.username}` : undefined,
+        engagementCount:
+          (metrics.like_count || 0) +
+          (metrics.retweet_count || 0),
+        verificationStatus: "unverified",
+        isBreaking: false,
+      };
+    });
+  } catch (error) {
+    console.error("X API error:", error);
+    return mockXItems(district);
+  }
+}
+
+// ── TikTok (Apify) ──────────────────────────────────────
+async function fetchFromTikTok(
+  token: string,
+  district: string
+): Promise<FloodNewsItem[]> {
+  if (!token) return mockTikTokItems(district);
+
+  try {
+    const runResp = await axios.post<any>(
+      `https://api.apify.com/v2/acts/clockworks~tiktok-scraper/runs?token=${token}`,
+      {
+        hashtags: [
+          `banjir${district.replace(" ", "").toLowerCase()}`,
+          "daruratbanjir",
+          "banjirmalaysia",
+        ],
+        resultsPerPage: 5,
+      },
+      {timeout: 5000}
+    );
+
+    const runId = runResp.data?.data?.id as string;
+
+    await new Promise((r) => setTimeout(r, 8000));
+
+    const dataResp = await axios.get<any[]>(
+      `https://api.apify.com/v2/acts/clockworks~tiktok-scraper/runs/${runId}/dataset/items?token=${token}&limit=8`
+    );
+
+    return (dataResp.data ?? []).map((item: any) => ({
+      id: `tiktok_${item.id}`,
+      title: (item.text || "").substring(0, 80),
+      summary: `TikTok: ${item.text || "Flood video"}`,
+      originalText: item.text,
+      source: "tiktok",
+      url: item.webVideoUrl || "https://tiktok.com",
+      videoUrl: item.videoUrl,
+      timestamp: new Date(
+        (item.createTime || Date.now() / 1000) * 1000
+      ).toISOString(),
+      author: `@${item.authorMeta?.name || "unknown"}`,
+      engagementCount:
+        (item.diggCount || 0) +
+        (item.commentCount || 0),
+      verificationStatus: "unverified",
+      isBreaking: false,
+    }));
+  } catch (error) {
+    console.error("TikTok error:", error);
+    return mockTikTokItems(district);
+  }
+}
+
+// ── Facebook (Apify) ────────────────────────────────────
+async function fetchFromFacebook(
+  token: string,
+  district: string
+): Promise<FloodNewsItem[]> {
+  if (!token) return mockFbItems(district);
+
+  try {
+    const runResp = await axios.post<any>(
+      `https://api.apify.com/v2/acts/apify~facebook-posts-scraper/runs?token=${token}`,
+      {
+        startUrls: [
+          {url: "https://www.facebook.com/groups/komuniti.banjir.malaysia"},
+          {url: "https://www.facebook.com/myinfobanjir"},
+        ],
+        resultsLimit: 5,
+      },
+      {timeout: 5000}
+    );
+
+    const runId = runResp.data?.data?.id as string;
+
+    await new Promise((r) => setTimeout(r, 10000));
+
+    const dataResp = await axios.get<any[]>(
+      `https://api.apify.com/v2/acts/apify~facebook-posts-scraper/runs/${runId}/dataset/items?token=${token}&limit=5`
+    );
+
+    return (dataResp.data ?? [])
+      .filter((item: any) => {
+        const text = (item.text || "").toLowerCase();
+        return (
+          text.includes("banjir") ||
+          text.includes("flood") ||
+          text.includes(district.toLowerCase())
+        );
+      })
+      .map((item: any) => ({
+        id: `fb_${item.postId}`,
+        title: (item.text || "").substring(0, 80),
+        summary: item.text || "",
+        originalText: item.text,
+        source: "facebook",
+        url: item.url || "https://facebook.com",
+        imageUrl: item.media?.[0]?.url,
+        timestamp: item.time || new Date().toISOString(),
+        author: item.pageName,
+        engagementCount:
+          (item.likes || 0) +
+          (item.shares || 0),
+        verificationStatus: "unverified",
+        isBreaking: false,
+      }));
+  } catch (error) {
+    console.error("Facebook error:", error);
+    return mockFbItems(district);
+  }
+}
+
+// ── Mock Fallbacks ──────────────────────────────────────
+function mockXItems(district: string): FloodNewsItem[] {
+  return [
+    {
+      id: "x_mock_1",
+      title: `Air naik dh kt ${district}`,
+      summary: `Residents reporting rising water levels in ${district}.`,
+      source: "x",
+      url: "https://x.com",
+      timestamp: new Date().toISOString(),
+      engagementCount: 120,
+      verificationStatus: "unverified",
+      isBreaking: false,
+    },
+  ];
+}
+
+function mockTikTokItems(district: string): FloodNewsItem[] {
+  return [
+    {
+      id: "tiktok_mock_1",
+      title: `Banjir teruk di ${district}`,
+      summary: `TikTok video showing flood in ${district}`,
+      source: "tiktok",
+      url: "https://tiktok.com",
+      timestamp: new Date().toISOString(),
+      engagementCount: 5000,
+      verificationStatus: "unverified",
+      isBreaking: false,
+    },
+  ];
+}
+
+function mockFbItems(district: string): FloodNewsItem[] {
+  return [
+    {
+      id: "fb_mock_1",
+      title: `Bantuan diperlukan di ${district}`,
+      summary: `Facebook group reporting flood in ${district}`,
+      source: "facebook",
+      url: "https://facebook.com",
+      timestamp: new Date().toISOString(),
+      engagementCount: 300,
+      verificationStatus: "unverified",
+      isBreaking: false,
+    },
+  ];
+}

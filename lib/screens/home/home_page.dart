@@ -85,6 +85,13 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
+                      _ServiceButton(
+  icon: Icons.newspaper,
+  label: 'Flood News',
+  color: Colors.blue,
+  routeName: '/news',   // add this
+),
+                    ],
                     ),
                   ),
                 ),

@@ -9,6 +9,7 @@ import 'services/notification_service.dart';
 import 'services/ai_service.dart';
 import 'screens/authentication/auth_viewmodel.dart';
 import 'screens/weather/weather_viewmodel.dart';
+import 'screens/news/news_viewmodel.dart';
 
 // pages
 import 'screens/authentication/login_page.dart';
@@ -23,6 +24,7 @@ import 'screens/communitypost/community_posts_page.dart';
 import 'screens/shelter/shelter_page.dart';
 import 'screens/ai/photos_analyser_page.dart';
 import 'screens/ai/evacuation_plan_page.dart';
+import 'screens/news/news_page.dart';
 import 'screens/splashscreen/splashscreen.dart';
 import 'screens/games/game_view.dart';
 
@@ -63,7 +65,9 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => WeatherViewModel(),
         ),
-        // AIService is not a ChangeNotifier — use plain Provider
+        ChangeNotifierProvider(
+          create: (_) => NewsViewModel()
+        ),
         Provider(
           create: (_) => AIService(),
         ),
@@ -95,7 +99,8 @@ class MyApp extends StatelessWidget {
         '/community': (context) => const CommunityPostsPage(),
         '/shelters': (context) => const ShelterPage(),
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
-        '/evacuation': (context) => const EvacuationPlanPage(), 
+        '/evacuation': (context) => const EvacuationPlanPage(),
+        '/news': (context) => const NewsPage(), 
         '/game': (context) => const SnakeGamePage(), 
       },
     );
