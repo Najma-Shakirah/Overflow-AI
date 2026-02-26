@@ -32,6 +32,9 @@ import 'screens/splashscreen/splashscreen.dart';
 import 'screens/games/game_view.dart';
 import 'screens/monitor/monitor_repository.dart';
 
+import 'screens/games/gamedashboard.dart';
+import 'screens/games/floodgame.dart';
+import 'screens/games/floodrisinggame/floodrisinggamepage.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -109,6 +112,9 @@ class MyApp extends StatelessWidget {
         '/evacuation': (context) => const EvacuationPlanPage(),
         '/news': (context) => const NewsPage(), 
         '/game': (context) => const SnakeGamePage(), 
+        '/gamedashboard': (context) => const GameDashboard(), 
+        '/floodgame': (context) => const FloodSurvivalGamePage(), 
+        '/floodrisinggame': (context) => const FloodRisingGamePage(),
       },
     );
   }

@@ -96,7 +96,40 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                  child: SafeArea(
+                    child: GlassContainer(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hello, user',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Welcome back!',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                  
+                    ),
+                  ),
+                ),
+    
                 const SizedBox(height: 20),
 
                 // ── Weather + AI Risk Cards ──
@@ -147,10 +180,10 @@ class _MyHomePageState extends State<MyHomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             _GlassServiceButton(
-                              icon: Icons.pending_actions,
-                              label: 'Checklist',
+                              icon: Icons.newspaper,
+                              label: 'Flood News',
                               color: Colors.red,
-                              routeName: '/checklist',
+                              routeName: '/news',
                             ),
                             _GlassServiceButton(
                               icon: Icons.report,
@@ -197,7 +230,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               icon: Icons.videogame_asset,
                               label: 'Games & Tips',
                               color: Colors.indigo,
-                              routeName: '/game',
+                              routeName: '/gamedashboard',
                             ),
                           ],
                         ),
