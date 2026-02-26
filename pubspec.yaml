@@ -37,3 +37,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/images/overflowAI.png
+    - assets/images/backgroundAI.jpg
+    - assets/images/background4.jpg

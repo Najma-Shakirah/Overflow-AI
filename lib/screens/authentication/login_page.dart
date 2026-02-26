@@ -63,12 +63,11 @@ class _LoginPageState extends State<LoginPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // App Logo/Icon
-                  const Icon(Icons.water_drop_rounded, size: 80, color: Color(0xFF3A83B7)),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Flood Guard",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF2D3748)),
+                  Image.asset(
+                    'assets/images/overflowAI.png',
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 8),
                   Text(

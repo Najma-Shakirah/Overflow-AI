@@ -23,6 +23,8 @@ import 'screens/communitypost/community_posts_page.dart';
 import 'screens/shelter/shelter_page.dart';
 import 'screens/ai/photos_analyser_page.dart';
 import 'screens/ai/evacuation_plan_page.dart';
+import 'screens/splashscreen/splashscreen.dart';
+import 'screens/games/game_view.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -79,8 +81,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      initialRoute: '/',
+      initialRoute: '/splashscreen',
       routes: {
+        '/splashscreen': (context) => const SplashScreen(),
         '/': (context) => const AuthWrapper(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
@@ -92,7 +95,8 @@ class MyApp extends StatelessWidget {
         '/community': (context) => const CommunityPostsPage(),
         '/shelters': (context) => const ShelterPage(),
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
-        '/evacuation': (context) => const EvacuationPlanPage(),
+        '/evacuation': (context) => const EvacuationPlanPage(), 
+        '/game': (context) => const SnakeGamePage(), 
       },
     );
   }
