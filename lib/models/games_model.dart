@@ -15,7 +15,7 @@ class Position {
 
 enum Direction { up, down, left, right }
 
-enum GameState { notStarted, playing, paused, gameOver, showingQuestion }
+enum GameState { notStarted, countdown, playing, paused, gameOver, showingQuestion }
 
 class FloodQuestion {
   final String question;

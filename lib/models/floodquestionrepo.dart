@@ -1,4 +1,4 @@
-import 'games_model.dart';
+import '../../models/games_model.dart';
 import 'dart:math';
 
 class FloodQuestionsRepository {
