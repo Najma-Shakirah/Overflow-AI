@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   provider: ^6.0.0
 
+  
+  connectivity_plus: ^5.0.2
+
   cupertino_icons: ^1.0.8
   google_fonts: ^8.0.0
   flutter_map: ^8.2.2
@@ -33,6 +36,8 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^6.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
 
 
 flutter:
@@ -42,3 +47,7 @@ flutter:
     - assets/images/overflowAI.png
     - assets/images/backgroundAI.jpg
     - assets/images/background4.jpg
+    - assets/images/background3.jpg
+    - assets/images/backgroundd.jpeg
+    - assets/images/background5.jpeg
+    - assets/images/background4.jpeg

@@ -134,3 +134,20 @@ class MainApp extends StatelessWidget {
     return const MyHomePage();
   }
 }
+/*
+// offline 
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 1. Init Firebase
+  await Firebase.initializeApp();
+
+  // 2. Enable Firestore offline persistence ← THIS IS THE ONE LINE
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
+  runApp(const MyApp());
+}
+*/

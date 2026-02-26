@@ -5,17 +5,14 @@ import '../../models/games_model.dart';
 import '../../models/floodquestionrepo.dart';
 
 class SnakeGameViewModel extends ChangeNotifier {
-  // Constants - Remove static keyword
   final int gridSize = 20;
-  final int gameSpeed = 300;
+  final int gameSpeed = 180; // Faster = smoother feel (was 300)
   final int applePoints = 10;
   final int correctAnswerBonus = 20;
   final int wrongAnswerPenalty = 5;
 
-  // Dependencies
   final FloodQuestionsRepository _questionsRepository = FloodQuestionsRepository();
 
-  // Game state
   List<Position> _snake = [Position(10, 10)];
   Position _food = Position(15, 15);
   Direction _direction = Direction.right;
@@ -25,7 +22,6 @@ class SnakeGameViewModel extends ChangeNotifier {
   FloodQuestion? _currentQuestion;
   Timer? _gameTimer;
 
-  // Getters
   List<Position> get snake => List.unmodifiable(_snake);
   Position get food => _food;
   Direction get direction => _direction;
@@ -44,9 +40,12 @@ class SnakeGameViewModel extends ChangeNotifier {
     super.dispose();
   }
 
-  // Game control methods
   void startGame() {
-    _snake = [Position(10, 10)];
+    _snake = [
+      Position(12, 10),
+      Position(11, 10),
+      Position(10, 10),
+    ]; // Start with 3 segments so snake is visible
     _food = _generateFood();
     _direction = Direction.right;
     _nextDirection = Direction.right;
@@ -66,6 +65,7 @@ class SnakeGameViewModel extends ChangeNotifier {
   void pauseGame() {
     if (_gameState == GameState.playing) {
       _gameState = GameState.paused;
+      _gameTimer?.cancel();
       notifyListeners();
     }
   }
@@ -73,17 +73,19 @@ class SnakeGameViewModel extends ChangeNotifier {
   void resumeGame() {
     if (_gameState == GameState.paused) {
       _gameState = GameState.playing;
+      _gameTimer = Timer.periodic(
+        Duration(milliseconds: gameSpeed),
+        (timer) => _updateGame(),
+      );
       notifyListeners();
     }
   }
 
   void changeDirection(Direction newDirection) {
-    // Prevent reversing
     if (_direction == Direction.up && newDirection == Direction.down) return;
     if (_direction == Direction.down && newDirection == Direction.up) return;
     if (_direction == Direction.left && newDirection == Direction.right) return;
     if (_direction == Direction.right && newDirection == Direction.left) return;
-
     _nextDirection = newDirection;
   }
 
@@ -107,25 +109,29 @@ class SnakeGameViewModel extends ChangeNotifier {
     _food = _generateFood();
     _gameState = GameState.playing;
     _currentQuestion = null;
+
+    // Resume timer
+    _gameTimer?.cancel();
+    _gameTimer = Timer.periodic(
+      Duration(milliseconds: gameSpeed),
+      (timer) => _updateGame(),
+    );
+
     notifyListeners();
   }
 
-  // Private game logic methods
   void _updateGame() {
     if (_gameState != GameState.playing) return;
 
     _direction = _nextDirection;
 
-    // Move snake
     Position newHead = _getNewHead();
 
-    // Check wall collision
     if (_isOutOfBounds(newHead)) {
       _endGame();
       return;
     }
 
-    // Check self collision
     if (_snake.contains(newHead)) {
       _endGame();
       return;
@@ -133,12 +139,11 @@ class SnakeGameViewModel extends ChangeNotifier {
 
     _snake.insert(0, newHead);
 
-    // Check food collision
     if (newHead == _food) {
       _stats = _stats.copyWith(
         score: _stats.score + applePoints,
-        snakeLength: _snake.length,
       );
+      _gameTimer?.cancel(); // Pause while showing question
       _showQuestion();
     } else {
       _snake.removeLast();

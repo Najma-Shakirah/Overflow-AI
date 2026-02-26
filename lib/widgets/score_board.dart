@@ -1,108 +1,101 @@
 import 'package:flutter/material.dart';
-import '../../../models/games_model.dart';
-import '../../../widgets/glass_container.dart';
-import 'floodtipsscreen.dart';
+import '../models/games_model.dart';
 
 class ScoreBoard extends StatelessWidget {
   final GameStats stats;
-  final bool showTipsButton;
 
-  const ScoreBoard({
-    super.key,
-    required this.stats,
-    this.showTipsButton = true,
-  });
+  const ScoreBoard({super.key, required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    return GlassContainer(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.15)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _ScoreItem(label: 'Score', value: stats.score.toString()),
-              _ScoreItem(label: 'Length', value: stats.snakeLength.toString()),
-              _ScoreItem(
-                label: 'Correct',
-                value: stats.correctAnswers.toString(),
-                color: Colors.green,
-              ),
-              _ScoreItem(
-                label: 'Wrong',
-                value: stats.wrongAnswers.toString(),
-                color: Colors.red,
-              ),
-            ],
+          _StatChip(
+            icon: Icons.star_rounded,
+            label: 'Score',
+            value: '${stats.score}',
+            color: const Color(0xFFFFD700),
           ),
-          
-          // Tips Button
-          if (showTipsButton) ...[
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FloodTipsScreen(
-                        onContinue: () => Navigator.pop(context),
-                      ),
-                    ),
-                  );
-                },
-               
-                label: const Text(
-                  'View Flood Safety Tips',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.white, width: 1.5),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-          ],
+          _Divider(),
+          _StatChip(
+            icon: Icons.check_circle_rounded,
+            label: 'Correct',
+            value: '${stats.correctAnswers}',
+            color: const Color(0xFF76FF03),
+          ),
+          _Divider(),
+          _StatChip(
+            icon: Icons.cancel_rounded,
+            label: 'Wrong',
+            value: '${stats.wrongAnswers}',
+            color: const Color(0xFFFF5252),
+          ),
         ],
       ),
     );
   }
 }
 
-class _ScoreItem extends StatelessWidget {
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: 28,
+      color: Colors.white.withOpacity(0.2),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
   final String label;
   final String value;
-  final Color? color;
+  final Color color;
 
-  const _ScoreItem({
+  const _StatChip({
+    required this.icon,
     required this.label,
     required this.value,
-    this.color,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            color: color ?? Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 12,
-          ),
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 6),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ],
     );
