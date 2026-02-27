@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          
+
           // Optional: Gradient overlay for better readability
           Container(
             decoration: BoxDecoration(
@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          
+
           // Main Content
           SingleChildScrollView(
             child: Column(
@@ -58,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 // ── Glass Header ──
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
                   child: SafeArea(
                     child: GlassContainer(
                       padding: const EdgeInsets.all(16),
@@ -85,11 +86,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         ],
                       ),
-                  
                     ),
                   ),
                 ),
-    
 
                 const SizedBox(height: 20),
 
@@ -111,7 +110,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: GlassContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     child: const Row(
                       children: [
                         Icon(Icons.apps, color: Colors.white, size: 20),
@@ -150,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               icon: Icons.report,
                               label: 'Report',
                               color: Colors.orange,
+                              routeName: '/report',
                             ),
                             _GlassServiceButton(
                               icon: Icons.house,
@@ -206,7 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: GlassContainer(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     child: const Row(
                       children: [
                         Icon(Icons.newspaper, color: Colors.white, size: 20),
@@ -439,9 +441,11 @@ class _WeatherContent extends StatelessWidget {
                   ],
                 ),
                 Text(weather.location,
-                    style: const TextStyle(fontSize: 14, color: Colors.white70)),
+                    style:
+                        const TextStyle(fontSize: 14, color: Colors.white70)),
                 Text(weather.condition,
-                    style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.6))),
+                    style: TextStyle(
+                        fontSize: 12, color: Colors.white.withOpacity(0.6))),
               ],
             ),
             Container(
@@ -463,7 +467,9 @@ class _WeatherContent extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: Colors.white70)),
             Text(_riskLabel,
                 style: TextStyle(
-                    fontSize: 13, fontWeight: FontWeight.bold, color: _riskColor)),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: _riskColor)),
             const Spacer(),
             Icon(Icons.speed, color: _riskColor, size: 18),
           ],
@@ -545,7 +551,8 @@ class _WeatherContent extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.red[300], size: 18),
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.red[300], size: 18),
                 const SizedBox(width: 8),
                 const Expanded(
                   child: Text(
@@ -585,9 +592,12 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(value,
             style: const TextStyle(
-                fontWeight: FontWeight.bold, fontSize: 12, color: Colors.white)),
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                color: Colors.white)),
         Text(label,
-            style: TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7))),
+            style:
+                TextStyle(fontSize: 10, color: Colors.white.withOpacity(0.7))),
       ],
     );
   }
@@ -650,11 +660,13 @@ class _AIRiskCardState extends State<AIRiskCard> {
             const SizedBox(
               width: 18,
               height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: Colors.white),
             ),
             const SizedBox(width: 12),
             Text('AI analysing flood risk...',
-                style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.8))),
+                style: TextStyle(
+                    fontSize: 13, color: Colors.white.withOpacity(0.8))),
           ],
         ),
       );
@@ -685,11 +697,14 @@ class _AIRiskCardState extends State<AIRiskCard> {
                 const SizedBox(width: 10),
                 const Expanded(
                   child: Text('AI Flood Risk Analysis',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.white)),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: a.riskColor,
                     borderRadius: BorderRadius.circular(12),
@@ -697,12 +712,16 @@ class _AIRiskCardState extends State<AIRiskCard> {
                   child: Text(
                     a.riskLevel,
                     style: const TextStyle(
-                        color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(width: 6),
                 Icon(
-                  _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  _expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: Colors.white70,
                   size: 20,
                 ),
@@ -714,7 +733,8 @@ class _AIRiskCardState extends State<AIRiskCard> {
             Row(
               children: [
                 Text('Risk score: ${a.riskScore}/100',
-                    style: const TextStyle(fontSize: 12, color: Colors.white70)),
+                    style:
+                        const TextStyle(fontSize: 12, color: Colors.white70)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ClipRRect(
@@ -731,24 +751,33 @@ class _AIRiskCardState extends State<AIRiskCard> {
             ),
             const SizedBox(height: 8),
 
-            Text(a.summary, style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.white)),
+            Text(a.summary,
+                style: const TextStyle(
+                    fontSize: 13, height: 1.4, color: Colors.white)),
 
             // Expanded details
             if (_expanded) ...[
               const SizedBox(height: 14),
               Divider(color: Colors.white.withOpacity(0.3)),
               const SizedBox(height: 10),
-
               const Text('📅 Forecast',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: Colors.white)),
               const SizedBox(height: 6),
               Text(a.forecast,
-                  style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.9), height: 1.4)),
-
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withOpacity(0.9),
+                      height: 1.4)),
               if (a.riskFactors.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text('⚠️ Risk Factors',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.white)),
                 const SizedBox(height: 6),
                 ...a.riskFactors.map((f) => Padding(
                       padding: const EdgeInsets.only(bottom: 4),
@@ -758,39 +787,48 @@ class _AIRiskCardState extends State<AIRiskCard> {
                           Icon(Icons.circle, size: 6, color: a.riskColor),
                           const SizedBox(width: 8),
                           Expanded(
-                              child: Text(f, style: const TextStyle(fontSize: 12, color: Colors.white))),
+                              child: Text(f,
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.white))),
                         ],
                       ),
                     )),
               ],
-
               if (a.recommendations.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 const Text('✅ Recommendations',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.white)),
                 const SizedBox(height: 6),
                 ...a.recommendations.map((r) => Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(Icons.check_circle_outline, size: 16, color: Colors.white70),
+                          const Icon(Icons.check_circle_outline,
+                              size: 16, color: Colors.white70),
                           const SizedBox(width: 8),
                           Expanded(
                               child: Text(r,
-                                  style: const TextStyle(fontSize: 12, height: 1.3, color: Colors.white))),
+                                  style: const TextStyle(
+                                      fontSize: 12,
+                                      height: 1.3,
+                                      color: Colors.white))),
                         ],
                       ),
                     )),
               ],
-
               const SizedBox(height: 6),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton.icon(
                   onPressed: _runAnalysis,
-                  icon: const Icon(Icons.refresh, size: 14, color: Colors.white),
-                  label: const Text('Refresh', style: TextStyle(fontSize: 12, color: Colors.white)),
+                  icon:
+                      const Icon(Icons.refresh, size: 14, color: Colors.white),
+                  label: const Text('Refresh',
+                      style: TextStyle(fontSize: 12, color: Colors.white)),
                 ),
               ),
             ],
@@ -818,14 +856,16 @@ class _NewsCarouselState extends State<NewsCarousel> {
   final List<_NewsItem> _newsItems = [
     _NewsItem(
       title: 'Emergency Services on High Alert',
-      description: 'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
+      description:
+          'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
       time: '15 mins ago',
       category: 'Emergency',
       categoryColor: Colors.red,
     ),
     _NewsItem(
       title: 'Water Levels Rising in Klang Valley',
-      description: 'Authorities warn residents to stay vigilant as rainfall continues',
+      description:
+          'Authorities warn residents to stay vigilant as rainfall continues',
       time: '1 hour ago',
       category: 'Warning',
       categoryColor: Colors.orange,
@@ -899,7 +939,9 @@ class _NewsCarouselState extends State<NewsCarousel> {
               width: _currentPage == i ? 24 : 8,
               height: 8,
               decoration: BoxDecoration(
-                color: _currentPage == i ? Colors.white : Colors.white.withOpacity(0.4),
+                color: _currentPage == i
+                    ? Colors.white
+                    : Colors.white.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -940,7 +982,8 @@ class _NewsCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: item.categoryColor,
                   borderRadius: BorderRadius.circular(12),
@@ -948,13 +991,16 @@ class _NewsCard extends StatelessWidget {
                 child: Text(
                   item.category.toUpperCase(),
                   style: const TextStyle(
-                      color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               const Spacer(),
               Icon(Icons.access_time, size: 14, color: Colors.white70),
               const SizedBox(width: 4),
-              Text(item.time, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+              Text(item.time,
+                  style: const TextStyle(fontSize: 12, color: Colors.white70)),
             ],
           ),
           const SizedBox(height: 10),
@@ -971,7 +1017,10 @@ class _NewsCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             item.description,
-            style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.9), height: 1.3),
+            style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withOpacity(0.9),
+                height: 1.3),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
