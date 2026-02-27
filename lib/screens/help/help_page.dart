@@ -16,7 +16,10 @@ class HelpPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 255, 142)],
+                  colors: [
+                    Color(0xFF3A83B7),
+                    Color.fromARGB(255, 29, 255, 142)
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -31,10 +34,11 @@ class HelpPage extends StatelessWidget {
                   children: [
                     Text(
                       'Help & Support',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                     ),
                     const SizedBox(height: 6),
                     Text(
@@ -49,7 +53,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Emergency Contacts
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -90,7 +94,7 @@ class HelpPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Quick Actions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -111,33 +115,27 @@ class HelpPage extends StatelessWidget {
                     title: 'Evacuation Centers',
                     subtitle: 'Find nearest relief centers',
                     color: Colors.orange,
-                    onTap: () {
-                      // TODO: Navigate to evacuation centers
-                    },
+                    onTap: () => Navigator.pushNamed(context, '/evacuation'),
                   ),
                   _ActionTile(
                     icon: Icons.report_problem,
                     title: 'Report Flooding',
                     subtitle: 'Submit a flood report',
                     color: Colors.red,
-                    onTap: () {
-                      // TODO: Navigate to report page
-                    },
+                    onTap: () => Navigator.pushNamed(context, '/report'),
                   ),
                   _ActionTile(
                     icon: Icons.info,
                     title: 'Safety Guidelines',
                     subtitle: 'Learn flood safety measures',
                     color: Colors.blue,
-                    onTap: () {
-                      // TODO: Navigate to safety guidelines
-                    },
+                    onTap: () => Navigator.pushNamed(context, '/game'),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // FAQs
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -155,29 +153,34 @@ class HelpPage extends StatelessWidget {
                   const SizedBox(height: 12),
                   _FAQItem(
                     question: 'How do I receive flood alerts?',
-                    answer: 'Enable notifications in your profile settings. You\'ll receive real-time alerts for your monitored areas.',
+                    answer:
+                        'Enable notifications in your profile settings. You\'ll receive real-time alerts for your monitored areas.',
                   ),
                   _FAQItem(
                     question: 'What should I do during a flood warning?',
-                    answer: 'Stay indoors, move to higher ground, avoid walking or driving through flood water, and keep emergency supplies ready.',
+                    answer:
+                        'Stay indoors, move to higher ground, avoid walking or driving through flood water, and keep emergency supplies ready.',
                   ),
                   _FAQItem(
                     question: 'How can I add more locations to monitor?',
-                    answer: 'Go to Profile > Location Preferences to add or remove monitored areas.',
+                    answer:
+                        'Go to Profile > Location Preferences to add or remove monitored areas.',
                   ),
                   _FAQItem(
                     question: 'How accurate are the water level readings?',
-                    answer: 'Data is sourced from official weather stations and updated every 15 minutes for maximum accuracy.',
+                    answer:
+                        'Data is sourced from official weather stations and updated every 15 minutes for maximum accuracy.',
                   ),
                   _FAQItem(
                     question: 'Can I share alerts with family?',
-                    answer: 'Yes, use the share button on any alert to send it via SMS, WhatsApp, or other messaging apps.',
+                    answer:
+                        'Yes, use the share button on any alert to send it via SMS, WhatsApp, or other messaging apps.',
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // Contact Support
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),

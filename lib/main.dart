@@ -35,6 +35,7 @@ import 'screens/monitor/monitor_repository.dart';
 import 'screens/games/gamedashboard.dart';
 import 'screens/games/floodgame.dart';
 import 'screens/games/floodrisinggame/floodrisinggamepage.dart';
+import 'screens/report/report_page.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -75,9 +76,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => WeatherViewModel(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => NewsViewModel()
-        ),
+        ChangeNotifierProvider(create: (_) => NewsViewModel()),
         Provider(
           create: (_) => AIService(),
         ),
@@ -110,11 +109,12 @@ class MyApp extends StatelessWidget {
         '/shelters': (context) => const ShelterPage(),
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
         '/evacuation': (context) => const EvacuationPlanPage(),
-        '/news': (context) => const NewsPage(), 
-        '/game': (context) => const SnakeGamePage(), 
-        '/gamedashboard': (context) => const GameDashboard(), 
-        '/floodgame': (context) => const FloodSurvivalGamePage(), 
+        '/news': (context) => const NewsPage(),
+        '/game': (context) => const SnakeGamePage(),
+        '/gamedashboard': (context) => const GameDashboard(),
+        '/floodgame': (context) => const FloodSurvivalGamePage(),
         '/floodrisinggame': (context) => const FloodRisingGamePage(),
+        '/report': (context) => const ReportPage(),
       },
     );
   }

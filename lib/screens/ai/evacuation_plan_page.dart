@@ -115,9 +115,12 @@ class _PlanContent extends StatelessWidget {
 
   Color get _urgencyColor {
     switch (plan.urgency) {
-      case 'IMMEDIATE': return Colors.red;
-      case 'SOON': return Colors.orange;
-      default: return Colors.green;
+      case 'IMMEDIATE':
+        return Colors.red;
+      case 'SOON':
+        return Colors.orange;
+      default:
+        return Colors.green;
     }
   }
 
@@ -142,7 +145,9 @@ class _PlanContent extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      plan.evacuateNow ? Icons.directions_run : Icons.visibility,
+                      plan.evacuateNow
+                          ? Icons.directions_run
+                          : Icons.visibility,
                       color: Colors.white,
                       size: 28,
                     ),
@@ -160,13 +165,13 @@ class _PlanContent extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   plan.timeframe,
-                  style: const TextStyle(
-                      color: Colors.white70, fontSize: 13),
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   plan.summary,
-                  style: const TextStyle(color: Colors.white, fontSize: 14, height: 1.4),
+                  style: const TextStyle(
+                      color: Colors.white, fontSize: 14, height: 1.4),
                 ),
               ],
             ),
@@ -269,7 +274,8 @@ class _PlanContent extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Row(
                     children: [
-                      const Icon(Icons.house, color: Color(0xFF3A83B7), size: 18),
+                      const Icon(Icons.house,
+                          color: Color(0xFF3A83B7), size: 18),
                       const SizedBox(width: 8),
                       Expanded(
                           child: Text(point,
@@ -288,21 +294,71 @@ class _PlanContent extends StatelessWidget {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: plan.whatToBring.map((item) => Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF3A83B7).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                          color: const Color(0xFF3A83B7).withOpacity(0.3)),
+              children: plan.whatToBring
+                  .map((item) => Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3A83B7).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                              color: const Color(0xFF3A83B7).withOpacity(0.3)),
+                        ),
+                        child: Text(item,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF3A83B7),
+                                fontWeight: FontWeight.w500)),
+                      ))
+                  .toList(),
+            ),
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/checklist'),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.pending_actions,
+                          color: Colors.white, size: 20),
                     ),
-                    child: Text(item,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF3A83B7),
-                            fontWeight: FontWeight.w500)),
-                  )).toList(),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'View Full Checklist',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: Colors.orange,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'See all essential items to prepare',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.orange),
+                  ],
+                ),
+              ),
             ),
           ],
 
