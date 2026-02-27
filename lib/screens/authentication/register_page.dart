@@ -1,7 +1,9 @@
 // lib/screens/authentication/register_page.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui';
 import 'auth_viewmodel.dart';
+import '../../widgets/glass_container.dart';
 
 // ─── Malaysian states & districts ───────────────────────────────────────────
 const Map<String, List<String>> kMalaysiaStatesDistricts = {
@@ -35,7 +37,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final PageController _pageController = PageController();
   int _currentStep = 0;
 
-  // Collected data across all steps
   String _email = '';
   String _password = '';
   String _fullName = '';
@@ -53,7 +54,6 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _currentStep = step);
   }
 
-  // Step 1 Complete - Only saves locally, no Firebase call yet
   void _onStep1Complete({
     required String email,
     required String password,
@@ -67,7 +67,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _goToStep(1);
   }
 
-  // Step 2 Complete
   void _onStep2Complete({
     required String? state,
     required String? district,
@@ -79,7 +78,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _goToStep(2);
   }
 
-  // Step 3 Complete — Fires the ViewModel Registration
   Future<void> _onStep3Complete({
     required String emergencyName,
     required String emergencyPhone,
@@ -89,9 +87,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }) async {
     final viewModel = context.read<AuthViewModel>();
 
-    // Build the user model with the accumulated data
     final profileData = UserModel(
-      uid: '', // Will be assigned by Firebase Auth inside the ViewModel
+      uid: '',
       email: _email,
       isAnonymous: false,
       fullName: _fullName,
@@ -106,7 +103,6 @@ class _RegisterPageState extends State<RegisterPage> {
       pushAlertsEnabled: pushAlerts,
     );
 
-    // Trigger the unified registration process
     final success = await viewModel.registerWithEmail(
       email: _email,
       password: _password,
@@ -114,7 +110,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
 
     if (success && mounted) {
-      // Assuming you have an AuthWrapper at '/'
       Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
     }
   }
@@ -128,72 +123,134 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Progress header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      if (_currentStep > 0)
-                        GestureDetector(
-                          onTap: () => _goToStep(_currentStep - 1),
-                          child: const Icon(Icons.arrow_back_ios, size: 20, color: Color(0xFF3A83B7)),
+      body: Stack(
+        children: [
+          // Gradient background matching splash screen
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF00C6FF),
+                  Color(0xFF0072FF),
+                  Color(0xFF667EEA),
+                ],
+              ),
+            ),
+          ),
+
+          // Decorative bubbles
+          _GlowBubble(size: 200, top: -50, right: -50),
+          _GlowBubble(size: 160, bottom: 100, left: -60),
+
+          SafeArea(
+            child: Column(
+              children: [
+                // Progress header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  child: GlassContainer(
+                    borderRadius: 16,
+                    blur: 10,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            if (_currentStep > 0)
+                              GestureDetector(
+                                onTap: () => _goToStep(_currentStep - 1),
+                                child: const Icon(Icons.arrow_back_ios,
+                                    size: 18, color: Colors.white),
+                              )
+                            else
+                              const SizedBox(width: 18),
+                            const Spacer(),
+                            Text(
+                              'Step ${_currentStep + 1} of 3',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.85),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
                         ),
-                      const Spacer(),
-                      Text('Step ${_currentStep + 1} of 3', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
+                        const SizedBox(height: 10),
+                        // Progress bar
+                        Row(
+                          children: List.generate(3, (i) {
+                            return Expanded(
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: i <= _currentStep
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Step pages
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _Step1Account(onComplete: _onStep1Complete),
+                      _Step2Location(onComplete: _onStep2Complete),
+                      _Step3Emergency(
+                        onComplete: _onStep3Complete,
+                        isLoading: context.watch<AuthViewModel>().isLoading,
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  // Progress bar
-                  Row(
-                    children: List.generate(3, (i) {
-                      return Expanded(
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: i <= _currentStep ? const Color(0xFF3A83B7) : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                ),
+              ],
             ),
-
-            // Steps Pages
-            Expanded(
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _Step1Account(onComplete: _onStep1Complete),
-                  _Step2Location(onComplete: _onStep2Complete),
-                  _Step3Emergency(
-                    onComplete: _onStep3Complete,
-                    isLoading: context.watch<AuthViewModel>().isLoading,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 // ─── Shared helpers ──────────────────────────────────────────────────────────
+
+class _GlowBubble extends StatelessWidget {
+  final double size;
+  final double? top, bottom, left, right;
+  const _GlowBubble({required this.size, this.top, this.bottom, this.left, this.right});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: top, bottom: bottom, left: left, right: right,
+      child: Container(
+        width: size, height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(colors: [
+            Colors.white.withOpacity(0.12),
+            Colors.white.withOpacity(0.0),
+          ]),
+        ),
+      ),
+    );
+  }
+}
 
 Widget _buildField({
   required TextEditingController controller,
@@ -211,15 +268,35 @@ Widget _buildField({
     obscureText: obscure,
     maxLines: maxLines,
     validator: validator,
+    style: const TextStyle(color: Color(0xFF1A1A2E)),
     decoration: InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: const Color(0xFF3A83B7)),
+      labelStyle: const TextStyle(color: Color(0xFF0072FF)),
+      prefixIcon: Icon(icon, color: const Color(0xFF0072FF), size: 20),
       suffixIcon: suffixIcon,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF3A83B7), width: 2)),
       filled: true,
       fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF0072FF), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+      errorStyle: const TextStyle(color: Colors.redAccent),
     ),
   );
 }
@@ -231,13 +308,17 @@ Widget _buildNextButton({required String label, required VoidCallback? onTap, bo
     child: ElevatedButton(
       onPressed: isLoading ? null : onTap,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF3A83B7),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0072FF),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         elevation: 0,
       ),
       child: isLoading
-          ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(color: Color(0xFF0072FF), strokeWidth: 2),
+            )
           : Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     ),
   );
@@ -270,7 +351,6 @@ class _Step1AccountState extends State<_Step1Account> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    // THE FIX: Do not call Firebase Auth here. Just pass the data to parent.
     widget.onComplete(
       email: _emailController.text.trim(),
       password: _passwordController.text,
@@ -282,96 +362,119 @@ class _Step1AccountState extends State<_Step1Account> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 72, height: 72,
-                decoration: BoxDecoration(color: const Color(0xFF3A83B7).withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.person_outline, color: Color(0xFF3A83B7), size: 36),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Center(child: Text('Create Your Account', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22))),
-            const SizedBox(height: 4),
-            Center(child: Text('Basic details to get you started', style: TextStyle(color: Colors.grey[500], fontSize: 14))),
-            const SizedBox(height: 28),
-
-            _buildField(
-              controller: _nameController, label: 'Full Name', icon: Icons.badge_outlined,
-              validator: (v) => (v == null || v.isEmpty) ? 'Please enter your full name' : null,
-            ),
-            const SizedBox(height: 14),
-
-            _buildField(
-              controller: _emailController, label: 'Email Address', icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Please enter your email';
-                if (!v.contains('@')) return 'Please enter a valid email';
-                return null;
-              },
-            ),
-            const SizedBox(height: 14),
-
-            _buildField(
-              controller: _phoneController, label: 'Phone Number', icon: Icons.phone_outlined, keyboardType: TextInputType.phone,
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Please enter your phone number';
-                if (v.length < 9) return 'Please enter a valid phone number';
-                return null;
-              },
-            ),
-            const SizedBox(height: 14),
-
-            _buildField(
-              controller: _passwordController, label: 'Password', icon: Icons.lock_outline, obscure: _obscurePassword,
-              suffixIcon: IconButton(
-                icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Please enter a password';
-                if (v.length < 6) return 'Password must be at least 6 characters';
-                return null;
-              },
-            ),
-            const SizedBox(height: 14),
-
-            _buildField(
-              controller: _confirmController, label: 'Confirm Password', icon: Icons.lock_outline, obscure: _obscureConfirm,
-              suffixIcon: IconButton(
-                icon: Icon(_obscureConfirm ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
-              ),
-              validator: (v) {
-                if (v == null || v.isEmpty) return 'Please confirm your password';
-                if (v != _passwordController.text) return 'Passwords do not match';
-                return null;
-              },
-            ),
-            const SizedBox(height: 24),
-
-            _buildNextButton(label: 'Continue', onTap: _submit),
-            const SizedBox(height: 16),
-
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Already have an account? ', style: TextStyle(color: Colors.grey[600])),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Login', style: TextStyle(color: Color(0xFF3A83B7), fontWeight: FontWeight.bold)),
+        child: GlassContainer(
+          borderRadius: 24,
+          blur: 12,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 68, height: 68,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.2),
+                    border: Border.all(color: Colors.white.withOpacity(0.4)),
                   ),
-                ],
+                  child: const Icon(Icons.person_outline, color: Colors.white, size: 34),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 14),
+              const Center(
+                child: Text('Create Your Account',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
+              ),
+              const SizedBox(height: 4),
+              Center(
+                child: Text('Basic details to get you started',
+                    style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 14)),
+              ),
+              const SizedBox(height: 24),
+
+              _buildField(
+                controller: _nameController, label: 'Full Name', icon: Icons.badge_outlined,
+                validator: (v) => (v == null || v.isEmpty) ? 'Please enter your full name' : null,
+              ),
+              const SizedBox(height: 12),
+              _buildField(
+                controller: _emailController, label: 'Email Address', icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Please enter your email';
+                  if (!v.contains('@')) return 'Please enter a valid email';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildField(
+                controller: _phoneController, label: 'Phone Number', icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Please enter your phone number';
+                  if (v.length < 9) return 'Please enter a valid phone number';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildField(
+                controller: _passwordController, label: 'Password', icon: Icons.lock_outline,
+                obscure: _obscurePassword,
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: const Color(0xFF0072FF), size: 20),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                ),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Please enter a password';
+                  if (v.length < 6) return 'Password must be at least 6 characters';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildField(
+                controller: _confirmController, label: 'Confirm Password', icon: Icons.lock_outline,
+                obscure: _obscureConfirm,
+                suffixIcon: IconButton(
+                  icon: Icon(_obscureConfirm ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                      color: const Color(0xFF0072FF), size: 20),
+                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                ),
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Please confirm your password';
+                  if (v != _passwordController.text) return 'Passwords do not match';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 24),
+
+              _buildNextButton(label: 'Continue', onTap: _submit),
+              const SizedBox(height: 14),
+
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Already have an account? ',
+                        style: TextStyle(color: Colors.white.withOpacity(0.8))),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -395,90 +498,149 @@ class _Step2LocationState extends State<_Step2Location> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    widget.onComplete(state: _selectedState, district: _selectedDistrict, homeAddress: _addressController.text.trim());
+    widget.onComplete(
+        state: _selectedState,
+        district: _selectedDistrict,
+        homeAddress: _addressController.text.trim());
   }
 
   @override
   Widget build(BuildContext context) {
-    final districts = _selectedState != null ? kMalaysiaStatesDistricts[_selectedState]! : <String>[];
+    final districts =
+        _selectedState != null ? kMalaysiaStatesDistricts[_selectedState]! : <String>[];
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Form(
         key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 72, height: 72,
-                decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), shape: BoxShape.circle),
-                child: const Icon(Icons.location_on_outlined, color: Colors.teal, size: 36),
+        child: GlassContainer(
+          borderRadius: 24,
+          blur: 12,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 68, height: 68,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.2),
+                    border: Border.all(color: Colors.white.withOpacity(0.4)),
+                  ),
+                  child: const Icon(Icons.location_on_outlined, color: Colors.white, size: 34),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Center(child: Text('Your Location', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22))),
-            const SizedBox(height: 4),
-            Center(child: Text('So we can send you relevant flood alerts', style: TextStyle(color: Colors.grey[500], fontSize: 14))),
-            const SizedBox(height: 28),
-
-            DropdownButtonFormField<String>(
-              value: _selectedState,
-              decoration: InputDecoration(
-                labelText: 'State *', prefixIcon: const Icon(Icons.map_outlined, color: Color(0xFF3A83B7)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF3A83B7), width: 2)),
-                filled: true, fillColor: Colors.white,
+              const SizedBox(height: 14),
+              const Center(
+                child: Text('Your Location',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
               ),
-              items: kMalaysiaStatesDistricts.keys.map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
-              onChanged: (val) => setState(() { _selectedState = val; _selectedDistrict = null; }),
-              validator: (v) => v == null ? 'Please select your state' : null,
-            ),
-            const SizedBox(height: 14),
-
-            DropdownButtonFormField<String>(
-              value: _selectedDistrict,
-              decoration: InputDecoration(
-                labelText: 'District / City *', prefixIcon: const Icon(Icons.location_city_outlined, color: Color(0xFF3A83B7)),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF3A83B7), width: 2)),
-                filled: true, fillColor: _selectedState == null ? Colors.grey[100] : Colors.white,
+              const SizedBox(height: 4),
+              Center(
+                child: Text('So we can send you relevant flood alerts',
+                    style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 14)),
               ),
-              items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-              onChanged: _selectedState == null ? null : (val) => setState(() => _selectedDistrict = val),
-              validator: (v) => v == null ? 'Please select your district' : null,
-            ),
-            const SizedBox(height: 14),
+              const SizedBox(height: 24),
 
-            TextFormField(
-              controller: _addressController, maxLines: 2,
-              decoration: InputDecoration(
-                labelText: 'Home Address (optional)', alignLabelWithHint: true,
-                prefixIcon: const Padding(padding: EdgeInsets.only(bottom: 22), child: Icon(Icons.home_outlined, color: Color(0xFF3A83B7))),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey[300]!)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF3A83B7), width: 2)),
-                filled: true, fillColor: Colors.white, hintText: 'e.g. No 12, Jalan Damai...',
+              _buildGlassDropdown<String>(
+                value: _selectedState,
+                label: 'State *',
+                icon: Icons.map_outlined,
+                items: kMalaysiaStatesDistricts.keys
+                    .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                    .toList(),
+                onChanged: (val) => setState(() {
+                  _selectedState = val;
+                  _selectedDistrict = null;
+                }),
+                validator: (v) => v == null ? 'Please select your state' : null,
               ),
-            ),
-            const SizedBox(height: 28),
+              const SizedBox(height: 12),
 
-            _buildNextButton(label: 'Continue', onTap: _submit),
-            const SizedBox(height: 24),
-          ],
+              _buildGlassDropdown<String>(
+                value: _selectedDistrict,
+                label: 'District / City *',
+                icon: Icons.location_city_outlined,
+                items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                onChanged: _selectedState == null
+                    ? null
+                    : (val) => setState(() => _selectedDistrict = val),
+                validator: (v) => v == null ? 'Please select your district' : null,
+              ),
+              const SizedBox(height: 12),
+
+              _buildField(
+                controller: _addressController,
+                label: 'Home Address (optional)',
+                icon: Icons.home_outlined,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 24),
+
+              _buildNextButton(label: 'Continue', onTap: _submit),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+Widget _buildGlassDropdown<T>({
+  required T? value,
+  required String label,
+  required IconData icon,
+  required List<DropdownMenuItem<T>> items,
+  required void Function(T?)? onChanged,
+  String? Function(T?)? validator,
+}) {
+  return DropdownButtonFormField<T>(
+    value: value,
+    dropdownColor: Colors.white,
+    style: const TextStyle(color: Color(0xFF1A1A2E)),
+    iconEnabledColor: const Color(0xFF0072FF),
+    iconDisabledColor: Colors.grey,
+    decoration: InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Color(0xFF0072FF)),
+      prefixIcon: Icon(icon, color: const Color(0xFF0072FF), size: 20),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF0072FF), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.redAccent),
+      ),
+      errorStyle: const TextStyle(color: Colors.redAccent),
+    ),
+    items: items,
+    onChanged: onChanged,
+    validator: validator,
+  );
+}
+
 // ─── STEP 3: Emergency & Preferences ────────────────────────────────────────
 class _Step3Emergency extends StatefulWidget {
   final bool isLoading;
   final Future<void> Function({
-    required String emergencyName, required String emergencyPhone, required String alertThreshold, required bool smsAlerts, required bool pushAlerts,
+    required String emergencyName,
+    required String emergencyPhone,
+    required String alertThreshold,
+    required bool smsAlerts,
+    required bool pushAlerts,
   }) onComplete;
 
   const _Step3Emergency({required this.onComplete, required this.isLoading});
@@ -497,71 +659,103 @@ class _Step3EmergencyState extends State<_Step3Emergency> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 72, height: 72,
-              decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle),
-              child: const Icon(Icons.shield_outlined, color: Colors.orange, size: 36),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Center(child: Text('Emergency & Alerts', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22))),
-          const SizedBox(height: 28),
-
-          const Text('Emergency Contact', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF2D3748))),
-          const SizedBox(height: 12),
-          _buildField(controller: _emergencyNameController, label: 'Contact Name', icon: Icons.person_outline),
-          const SizedBox(height: 12),
-          _buildField(controller: _emergencyPhoneController, label: 'Contact Phone Number', icon: Icons.phone_outlined, keyboardType: TextInputType.phone),
-          const SizedBox(height: 24),
-
-          // Error Message Display (from ViewModel)
-          Consumer<AuthViewModel>(builder: (ctx, vm, _) {
-            if (vm.errorMessage == null) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: GlassContainer(
+        borderRadius: 24,
+        blur: 12,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
               child: Container(
-                padding: const EdgeInsets.all(12),
+                width: 68, height: 68,
                 decoration: BoxDecoration(
-                  color: Colors.red[50], borderRadius: BorderRadius.circular(10), border: Border.all(color: Colors.red[200]!),
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.2),
+                  border: Border.all(color: Colors.white.withOpacity(0.4)),
                 ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red[700]),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(vm.errorMessage!, style: TextStyle(color: Colors.red[700]))),
-                  ],
-                ),
+                child: const Icon(Icons.shield_outlined, color: Colors.white, size: 34),
               ),
-            );
-          }),
+            ),
+            const SizedBox(height: 14),
+            const Center(
+              child: Text('Emergency & Alerts',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
+            ),
+            const SizedBox(height: 24),
 
-          _buildNextButton(
-            label: 'Complete Registration',
-            isLoading: widget.isLoading,
-            onTap: () => widget.onComplete(
-              emergencyName: _emergencyNameController.text.trim(),
-              emergencyPhone: _emergencyPhoneController.text.trim(),
-              alertThreshold: _alertThreshold,
-              smsAlerts: _smsAlerts,
-              pushAlerts: _pushAlerts,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: TextButton(
-              onPressed: widget.isLoading ? null : () => widget.onComplete(
-                emergencyName: '', emergencyPhone: '', alertThreshold: _alertThreshold, smsAlerts: _smsAlerts, pushAlerts: _pushAlerts,
+            Text('Emergency Contact',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white.withOpacity(0.9))),
+            const SizedBox(height: 12),
+            _buildField(
+                controller: _emergencyNameController,
+                label: 'Contact Name',
+                icon: Icons.person_outline),
+            const SizedBox(height: 12),
+            _buildField(
+                controller: _emergencyPhoneController,
+                label: 'Contact Phone Number',
+                icon: Icons.phone_outlined,
+                keyboardType: TextInputType.phone),
+            const SizedBox(height: 24),
+
+            // Error message
+            Consumer<AuthViewModel>(builder: (ctx, vm, _) {
+              if (vm.errorMessage == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.red.withOpacity(0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Expanded(
+                          child: Text(vm.errorMessage!,
+                              style: const TextStyle(color: Colors.white))),
+                    ],
+                  ),
+                ),
+              );
+            }),
+
+            _buildNextButton(
+              label: 'Complete Registration',
+              isLoading: widget.isLoading,
+              onTap: () => widget.onComplete(
+                emergencyName: _emergencyNameController.text.trim(),
+                emergencyPhone: _emergencyPhoneController.text.trim(),
+                alertThreshold: _alertThreshold,
+                smsAlerts: _smsAlerts,
+                pushAlerts: _pushAlerts,
               ),
-              child: Text('Skip for now', style: TextStyle(color: Colors.grey[500], fontSize: 13)),
             ),
-          ),
-          const SizedBox(height: 24),
-        ],
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton(
+                onPressed: widget.isLoading
+                    ? null
+                    : () => widget.onComplete(
+                          emergencyName: '',
+                          emergencyPhone: '',
+                          alertThreshold: _alertThreshold,
+                          smsAlerts: _smsAlerts,
+                          pushAlerts: _pushAlerts,
+                        ),
+                child: Text('Skip for now',
+                    style: TextStyle(color: Colors.white.withOpacity(0.65), fontSize: 13)),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

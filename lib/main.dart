@@ -101,6 +101,11 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.varelaRoundTextTheme(
           Theme.of(context).textTheme,
         ),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFF0072FF), // your main blue
+          brightness: Brightness.light,
+        ),
+        useMaterial3: true,
       ),
       navigatorKey: navigatorKey,
       initialRoute: '/splashscreen',
