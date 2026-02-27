@@ -5,7 +5,16 @@ import 'package:url_launcher/url_launcher.dart';
 class ReportViewModel extends ChangeNotifier {
   final List<ReportChannel> channels = [
     ReportChannel(
-      icon: Icons.language,
+      icon: Icons.account_balance,
+      label: 'Angkatan Pertahanan Awam Malaysia',
+      subtitle: 'Flood Disaster Hotline',
+      detail: 'civildefence.gov.my',
+      color: Colors.orange,
+      url: 'https://www.civildefence.gov.my/talian-kecemasan-bencana-banjir/',
+      type: ChannelType.website,
+    ),
+    ReportChannel(
+      icon: Icons.account_balance,
       label: 'e-Reporting PDRM',
       subtitle: 'Report disaster without going to police station',
       detail: 'ereporting.rmp.gov.my',
@@ -14,13 +23,14 @@ class ReportViewModel extends ChangeNotifier {
       type: ChannelType.website,
     ),
     ReportChannel(
-      icon: Icons.phone,
-      label: 'Call NADMA',
+      icon: Icons.account_balance,
+      label: 'Pusat Kawalan Operasi Bencana (NADMA)',
       subtitle: 'National Disaster Management Agency',
-      detail: '03-8064 2400',
+      detail: 'portalbencana.nadma.gov.my',
       color: Colors.red,
-      url: 'tel:0380642400',
-      type: ChannelType.phone,
+      url:
+          'https://portalbencana.nadma.gov.my/images/ndcc/documents/PKOB/SENARAI_NOMBOR_PEJABAT_DAERAH.pdf',
+      type: ChannelType.website,
     ),
     ReportChannel(
       icon: Icons.language,
@@ -28,7 +38,8 @@ class ReportViewModel extends ChangeNotifier {
       subtitle: 'Official flood info & reporting portal',
       detail: 'publicinfobanjir.water.gov.my',
       color: Color(0xFF3A83B7),
-      url: 'https://publicinfobanjir.water.gov.my/soalan-lazim/#',
+      url:
+          'https://publicinfobanjir.water.gov.my/mengenai-kami/hubungi-kami/?lang=en',
       type: ChannelType.website,
     ),
     ReportChannel(
