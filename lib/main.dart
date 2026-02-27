@@ -135,7 +135,7 @@ class MyApp extends StatelessWidget {
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
         '/evacuation': (context) => const EvacuationPlanPage(),
         '/news': (context) => const NewsPage(),
-        '/game': (context) => const SnakeGamePage(),
+        '/snakegame': (context) => const SnakeGamePage(),
         '/gamedashboard': (context) => const GameDashboard(),
         '/floodgame': (context) => const FloodSurvivalGamePage(),
         '/floodrisinggame': (context) => const FloodRisingGamePage(),

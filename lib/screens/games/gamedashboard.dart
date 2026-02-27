@@ -69,7 +69,7 @@ class GameDashboard extends StatelessWidget {
                       _GameCard(
                         title: 'Flood Survival',
                        
-                       imagePath: 'assets/images/sponge.jpg',
+                       imagePath: 'assets/images/floodsurvival.png',
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const FloodSurvivalGamePage()),
@@ -77,7 +77,7 @@ class GameDashboard extends StatelessWidget {
                       ),
                       _GameCard(
                         title: 'Flood it Rising',
-                      imagePath: 'assets/images/sponge.jpg',
+                      imagePath: 'assets/images/floodrising.png',
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const FloodRisingGamePage()),

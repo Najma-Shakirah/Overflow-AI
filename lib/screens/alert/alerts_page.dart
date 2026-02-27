@@ -214,31 +214,31 @@ class _AlertsPageState extends State<AlertsPage> {
                     children: [
                       // Show banner if using sample data
                       if (!useFirestore)
-                        Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 16),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: Colors.blue.shade200),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_outline,
-                                  size: 16, color: Colors.blue[700]),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Showing sample alerts — real alerts will appear here automatically.',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.blue[700]),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Container(
+                        //   width: double.infinity,
+                        //   margin: const EdgeInsets.only(bottom: 16),
+                        //   padding: const EdgeInsets.symmetric(
+                        //       horizontal: 14, vertical: 10),
+                        //   decoration: BoxDecoration(
+                        //     color: Colors.blue[50],
+                        //     borderRadius: BorderRadius.circular(10),
+                        //     border: Border.all(color: Colors.blue.shade200),
+                        //   ),
+                        //   child: Row(
+                        //     children: [
+                        //       Icon(Icons.info_outline,
+                        //           size: 16, color: Colors.blue[700]),
+                        //       const SizedBox(width: 8),
+                        //       Expanded(
+                        //         child: Text(
+                        //           'Showing sample alerts — real alerts will appear here automatically.',
+                        //           style: TextStyle(
+                        //               fontSize: 12, color: Colors.blue[700]),
+                        //         ),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
 
                       ...alerts.map((data) {
                         return Padding(

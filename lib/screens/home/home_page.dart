@@ -13,16 +13,16 @@ class _C {
   static const muted      = Color(0xFF312E81);
   static const accent     = Color(0xFF1E3A8A);
   static const purple     = Color(0xFF4C1D95);
-  static const riskLow    = Color.fromARGB(255, 0, 151, 60);
-  static const riskMod    = Color.fromARGB(255, 160, 59, 0);
-  static const riskHigh   = Color.fromARGB(255, 165, 0, 0);
+  static const riskLow    = Color.fromARGB(255, 0, 201, 80);
+  static const riskMod    = Color.fromARGB(255, 210, 77, 0);
+  static const riskHigh   = Color.fromARGB(255, 206, 0, 0);
   static const riskLowBg  = Color.fromARGB(205, 202, 255, 216);
   static const riskModBg  = Color.fromARGB(181, 255, 232, 193);
   static const riskHighBg = Color.fromARGB(143, 255, 194, 194);
-  static const emergency  = Color(0xFF7F1D1D);
-  static const warning    = Color(0xFF78350F);
-  static const relief     = Color(0xFF1E3A8A);
-  static const traffic    = Color(0xFF4C1D95);
+  static const emergency  = Color.fromARGB(255, 255, 21, 21);
+  static const warning    = Color.fromARGB(255, 255, 107, 21);
+  static const relief     = Color.fromARGB(255, 42, 99, 255);
+  static const traffic    = Color.fromARGB(255, 194, 145, 0);
 }
 
 class MyHomePage extends StatefulWidget {
@@ -205,20 +205,19 @@ class _ServicesGrid extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _ServiceButton(icon: Icons.pending_actions_rounded, label: 'Checklist', color: const Color(0xFFDC2626), routeName: '/checklist'),
-              _ServiceButton(icon: Icons.report_problem_rounded,  label: 'Report',    color: const Color(0xFFD97706)),
-              _ServiceButton(icon: Icons.home_rounded,            label: 'Shelters',  color: const Color(0xFF2563EB), routeName: '/shelters'),
-              _ServiceButton(icon: Icons.groups_rounded,          label: 'Community', color: const Color(0xFF16A34A), routeName: '/community'),
+              _ServiceButton(icon: Icons.medical_services_rounded, label: 'Get Help',         color: const Color.fromARGB(255, 255, 33, 33), routeName: '/help'),
+              _ServiceButton(icon: Icons.groups_rounded,          label: 'Community', color: const Color.fromARGB(255, 0, 185, 68), routeName: '/community'),
+              _ServiceButton(icon: Icons.camera_alt_rounded,           label: 'Analyse Photo', color: const Color(0xFF9333EA), routeName: '/analyse-photo'),
+
             ],
           ),
           const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _ServiceButton(icon: Icons.camera_alt_rounded,           label: 'Analyse\nPhoto', color: const Color(0xFF9333EA), routeName: '/analyse-photo'),
               _ServiceButton(icon: Icons.directions_run_rounded,       label: 'Evacuate',       color: const Color(0xFFEA580C), routeName: '/evacuation'),
-              _ServiceButton(icon: Icons.notifications_active_rounded, label: 'Alerts',         color: const Color(0xFF0D9488), routeName: '/alerts'),
-              _ServiceButton(icon: Icons.videogame_asset_rounded,      label: 'Games &\nTips',  color: const Color(0xFF4F46E5), routeName: '/game'),
+              _ServiceButton(icon: Icons.home_rounded,            label: 'Shelters',  color: const Color.fromARGB(255, 53, 151, 255), routeName: '/shelters'),
+              _ServiceButton(icon: Icons.videogame_asset_rounded,      label: 'Games & Tips',  color: const Color(0xFF4F46E5), routeName: '/gamedashboard'),
             ],
           ),
         ],
@@ -270,7 +269,7 @@ class _ServiceButton extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            width: 64,
+            width: 80,
             child: Text(
               label,
               style: const TextStyle(
@@ -280,7 +279,7 @@ class _ServiceButton extends StatelessWidget {
                 height: 1.3,
               ),
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: 1,
             ),
           ),
         ],
@@ -641,7 +640,7 @@ class _AIRiskCardState extends State<AIRiskCard> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: safe.withOpacity(0.12),
+                    color: Colors.white.withOpacity(0.72),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: safe.withOpacity(0.5), width: 1),
                   ),
@@ -904,7 +903,7 @@ class _NewsCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  color: item.categoryColor.withOpacity(0.12),
+                  color: Colors.white.withOpacity(0.72),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                       color: item.categoryColor.withOpacity(0.5), width: 1),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/ai_service.dart';
 import '../weather/weather_viewmodel.dart';
+import '../navbar/navbar.dart';
 
 class EvacuationPlanPage extends StatefulWidget {
   const EvacuationPlanPage({super.key});
@@ -54,55 +55,109 @@ class _EvacuationPlanPageState extends State<EvacuationPlanPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Evacuation Plan'),
-        backgroundColor: const Color(0xFF3A83B7),
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _generatePlan,
-            tooltip: 'Regenerate',
-          ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: const [
+          MonitorFAB(),
         ],
       ),
-      body: _isLoading
-          ? const Center(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
+      body: Column(
+        children: [
+          // Header matching alerts page style
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 217, 255)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Generating evacuation plan...'),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Evacuation Plan',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'AI-generated route & safety guidance',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Colors.white70),
+                  ),
                 ],
               ),
-            )
-          : _error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
+            ),
+          ),
+          // Body content
+          Expanded(
+            child: _isLoading
+                ? const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.error_outline,
-                            color: Colors.red, size: 48),
-                        const SizedBox(height: 12),
-                        Text(_error!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 14)),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _generatePlan,
-                          child: const Text('Retry'),
-                        ),
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Generating evacuation plan...'),
                       ],
                     ),
-                  ),
-                )
-              : _plan != null
-                  ? _PlanContent(plan: _plan!, onRegenerate: _generatePlan)
-                  : const SizedBox.shrink(),
+                  )
+                : _error != null
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: Colors.red, size: 48),
+                              const SizedBox(height: 12),
+                              Text(_error!,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 14)),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _generatePlan,
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : _plan != null
+                        ? _PlanContent(plan: _plan!, onRegenerate: _generatePlan)
+                        : const SizedBox.shrink(),
+          ),
+        ],
+      ),
     );
   }
 }

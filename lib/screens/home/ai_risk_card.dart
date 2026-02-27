@@ -90,7 +90,7 @@ class _AIRiskCardState extends State<AIRiskCard> {
               color: a.riskColor.withOpacity(0.4), width: 1.5),
           boxShadow: [
             BoxShadow(
-              color: a.riskColor.withOpacity(0.08),
+              color: a.riskColor.withOpacity(1.0),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

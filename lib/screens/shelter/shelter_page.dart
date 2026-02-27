@@ -327,7 +327,7 @@ class _ShelterPageState extends State<ShelterPage> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 255, 142)],
+                colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 217, 255)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

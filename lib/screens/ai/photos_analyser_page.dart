@@ -1,9 +1,9 @@
-// lib/screens/ai/flood_photo_analyser_page.dart
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../services/ai_service.dart';
+import '../navbar/navbar.dart';
 
 class FloodPhotoAnalyserPage extends StatefulWidget {
   const FloodPhotoAnalyserPage({super.key});
@@ -47,93 +47,158 @@ class _FloodPhotoAnalyserPageState extends State<FloodPhotoAnalyserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analyse Flood Photo'),
-        backgroundColor: const Color(0xFF3A83B7),
-        foregroundColor: Colors.white,
-        elevation: 0,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: const [
+          MonitorFAB(),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Instructions
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.shade200),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
+      body: Column(
+        children: [
+          // --- HEADER matching alerts page style ---
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 217, 255)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Row(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Take or upload a photo of flooded area. AI will assess severity and give safety advice.',
-                      style: TextStyle(fontSize: 13, color: Colors.blue[800]),
-                    ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Flood Photo Analyser',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'AI-powered water level & risk assessment',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: Colors.white70),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+          ),
 
-            // Image picker buttons
-            Row(
-              children: [
-                Expanded(
-                  child: _PickerButton(
-                    icon: Icons.camera_alt,
-                    label: 'Take Photo',
-                    onTap: () => _pickImage(ImageSource.camera),
+          // --- SCROLLABLE CONTENT ---
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Instructions
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue[700], size: 20),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Take or upload a photo of flooded area. AI will assess severity and give safety advice.',
+                            style: TextStyle(fontSize: 13, color: Colors.blue[800]),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _PickerButton(
-                    icon: Icons.photo_library,
-                    label: 'Choose Photo',
-                    onTap: () => _pickImage(ImageSource.gallery),
+                  const SizedBox(height: 20),
+
+                  // Image picker buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _PickerButton(
+                          icon: Icons.camera_alt,
+                          label: 'Take Photo',
+                          onTap: () => _pickImage(ImageSource.camera),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _PickerButton(
+                          icon: Icons.photo_library,
+                          label: 'Choose Photo',
+                          onTap: () => _pickImage(ImageSource.gallery),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+
+                  // Image preview
+                  if (_imageBytes != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.memory(
+                        _imageBytes!,
+                        width: double.infinity,
+                        height: 220,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+
+                  const SizedBox(height: 20),
+
+                  // Loading indicator
+                  if (_isAnalysing)
+                    const Center(
+                      child: Column(
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 12),
+                          Text('Analysing flood conditions...', 
+                               style: TextStyle(fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+
+                  // Analysis results
+                  if (_analysis != null && !_isAnalysing)
+                    _AnalysisResults(analysis: _analysis!),
+                  
+                  const SizedBox(height: 40), // Bottom padding for scroll
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-
-            // Image preview
-            if (_imageBytes != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.memory(
-                  _imageBytes!,
-                  width: double.infinity,
-                  height: 220,
-                  fit: BoxFit.cover,
-                ),
-              ),
-
-            const SizedBox(height: 20),
-
-            // Loading indicator
-            if (_isAnalysing)
-              const Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 12),
-                    Text('Analysing flood conditions...'),
-                  ],
-                ),
-              ),
-
-            // Analysis results
-            if (_analysis != null && !_isAnalysing)
-              _AnalysisResults(analysis: _analysis!),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
