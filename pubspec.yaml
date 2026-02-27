@@ -12,8 +12,12 @@ dependencies:
     sdk: flutter
   provider: ^6.0.0
 
-  
+  #offline support
   connectivity_plus: ^5.0.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  firebase_database: 12.1.3
+  path_provider: ^2.1.0
 
   cupertino_icons: ^1.0.8
   google_fonts: ^8.0.0
@@ -31,6 +35,7 @@ dependencies:
   firebase_ai: ^3.8.0
   google_generative_ai: ^0.4.7
   url_launcher: ^6.3.2
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
@@ -38,8 +43,6 @@ dev_dependencies:
 
   flutter_lints: ^6.0.0
   hive_generator: ^2.0.1
-  build_runner: ^2.4.8
-
 
 flutter:
   uses-material-design: true
@@ -52,3 +55,6 @@ flutter:
     - assets/images/backgroundd.jpeg
     - assets/images/background5.jpeg
     - assets/images/background4.jpeg
+    - assets/images/game.jpg
+    - assets/images/snake.png
+    - assets/images/sponge.jpg

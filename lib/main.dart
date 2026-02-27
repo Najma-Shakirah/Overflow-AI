@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
 import 'services/ai_service.dart';
+
 import 'screens/authentication/auth_viewmodel.dart';
 import 'screens/weather/weather_viewmodel.dart';
 import 'screens/news/news_viewmodel.dart';
@@ -32,6 +35,11 @@ import 'screens/ai/evacuation_plan_page.dart';
 import 'screens/news/news_page.dart';
 import 'screens/splashscreen/splashscreen.dart';
 import 'screens/games/game_view.dart';
+import 'screens/monitor/monitor_repository.dart';
+import 'screens/games/gamedashboard.dart';
+import 'screens/games/floodgame.dart';
+import 'screens/games/floodrisinggame/floodrisinggamepage.dart';
+import 'screens/report/report_page.dart';
 
 // Global navigator key — used to navigate from notification taps
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -52,6 +60,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Hive.initFlutter();  
+  await MonitorRepository.openBoxes(); 
 
   if (!kIsWeb) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -70,9 +80,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => WeatherViewModel(),
         ),
-        ChangeNotifierProvider(
-          create: (_) => NewsViewModel()
-        ),
+        ChangeNotifierProvider(create: (_) => NewsViewModel()),
         Provider(
           create: (_) => AIService(),
         ),
@@ -114,8 +122,12 @@ class MyApp extends StatelessWidget {
         '/shelters': (context) => const ShelterPage(),
         '/analyse-photo': (context) => const FloodPhotoAnalyserPage(),
         '/evacuation': (context) => const EvacuationPlanPage(),
-        '/news': (context) => const NewsPage(), 
-        '/game': (context) => const SnakeGamePage(), 
+        '/news': (context) => const NewsPage(),
+        '/game': (context) => const SnakeGamePage(),
+        '/gamedashboard': (context) => const GameDashboard(),
+        '/floodgame': (context) => const FloodSurvivalGamePage(),
+        '/floodrisinggame': (context) => const FloodRisingGamePage(),
+        '/report': (context) => const ReportPage(),
       },
     );
   }
@@ -153,20 +165,3 @@ class MainApp extends StatelessWidget {
     return const MyHomePage();
   }
 }
-/*
-// offline 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // 1. Init Firebase
-  await Firebase.initializeApp();
-
-  // 2. Enable Firestore offline persistence ← THIS IS THE ONE LINE
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-  );
-
-  runApp(const MyApp());
-}
-*/

@@ -721,7 +721,6 @@ class _AIRiskCardState extends State<AIRiskCard> {
                       ),
                     )),
               ],
-
               if (a.recommendations.isNotEmpty) ...[
                 const SizedBox(height: 14),
                 const Text('✅ Recommendations',
@@ -783,14 +782,16 @@ class _NewsCarouselState extends State<NewsCarousel> {
   final List<_NewsItem> _newsItems = [
     _NewsItem(
       title: 'Emergency Services on High Alert',
-      description: 'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
+      description:
+          'Rescue teams deployed across 12 affected areas in Kuala Lumpur',
       time: '15 mins ago',
       category: 'Emergency',
       categoryColor: _C.emergency,
     ),
     _NewsItem(
       title: 'Water Levels Rising in Klang Valley',
-      description: 'Authorities warn residents to stay vigilant as rainfall continues',
+      description:
+          'Authorities warn residents to stay vigilant as rainfall continues',
       time: '1 hour ago',
       category: 'Warning',
       categoryColor: _C.warning,

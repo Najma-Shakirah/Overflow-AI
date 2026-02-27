@@ -53,13 +53,32 @@ class _MonitorViewState extends State<_MonitorView>
       backgroundColor: const Color(0xFFF5F7FA),
       body: Column(
         children: [
-          // ── Header ────────────────────────────────────────────────────
           _Header(vm: vm),
-
-          // ── Situation banner ──────────────────────────────────────────
           if (!vm.isLoading) _SituationBanner(vm: vm),
 
-          // ── Tab bar ───────────────────────────────────────────────────
+          // ── Offline banner ─────────────────────────────────────────
+          if (vm.isOffline)
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: const Color(0xFFFF9500),
+              child: const Row(
+                children: [
+                  Icon(Icons.wifi_off, color: Colors.white, size: 16),
+                  SizedBox(width: 8),
+                  Text(
+                    'Offline — showing cached data',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
           Container(
             color: Colors.white,
             child: TabBar(
@@ -75,8 +94,6 @@ class _MonitorViewState extends State<_MonitorView>
               ],
             ),
           ),
-
-          // ── Tab views ─────────────────────────────────────────────────
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -138,15 +155,20 @@ class _Header extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                            color: Colors.greenAccent,
-                            shape: BoxShape.circle),
+                        decoration: BoxDecoration(
+                          color: vm.isOffline
+                              ? Colors.orange
+                              : Colors.greenAccent,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         vm.isLoading
                             ? 'Loading...'
-                            : 'Live • ${vm.stations.length} stations active',
+                            : vm.isOffline
+                                ? 'Offline • ${vm.stations.length} cached stations'
+                                : 'Live • ${vm.stations.length} stations active',
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 12),
                       ),
@@ -155,7 +177,6 @@ class _Header extends StatelessWidget {
                 ],
               ),
             ),
-            // Quick stats chips
             if (!vm.isLoading) ...[
               _HeaderChip(
                   count: vm.dangerStationCount,
@@ -186,7 +207,7 @@ class _HeaderChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.25),
+        color: Colors.white.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.white30),
       ),
@@ -195,7 +216,8 @@ class _HeaderChip extends StatelessWidget {
           Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              decoration:
+                  BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 4),
           Text('$count $label',
               style: const TextStyle(
@@ -218,7 +240,6 @@ class _SituationBanner extends StatelessWidget {
     if (vm.overallSituation == FloodSituation.normal) {
       return const SizedBox.shrink();
     }
-
     final isDanger = vm.overallSituation == FloodSituation.danger;
     return Container(
       width: double.infinity,
@@ -245,7 +266,7 @@ class _SituationBanner extends StatelessWidget {
   }
 }
 
-// ─── MAP TAB ─────────────────────────────────────────────────────────────────
+// ─── MAP TAB ──────────────────────────────────────────────────────────────────
 class _MapTab extends StatelessWidget {
   final MapController mapController;
   final MonitorViewModel vm;
@@ -255,7 +276,6 @@ class _MapTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // ── Flutter Map ──────────────────────────────────────────────
         FlutterMap(
           mapController: mapController,
           options: MapOptions(
@@ -264,13 +284,29 @@ class _MapTab extends StatelessWidget {
             onTap: (_, __) => vm.clearSelectedStation(),
           ),
           children: [
+            // ── FIXED: no subdomains, proper User-Agent, OSM compliant ──
             TileLayer(
               urlTemplate:
-                  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-              subdomains: const ['a', 'b', 'c'],
+                  'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.overflowai.app',
+              tileProvider: NetworkTileProvider(
+                headers: {
+                  'User-Agent':
+                      'OverflowAI/1.0 FloodMonitoringMalaysia contact@overflowai.com',
+                },
+              ),
             ),
 
-            // Flood zone polygons
+            // ── Required OSM attribution ──
+            RichAttributionWidget(
+              attributions: [
+                TextSourceAttribution(
+                  'OpenStreetMap contributors',
+                  onTap: () {},
+                ),
+              ],
+            ),
+
             if (vm.layers.showFloodZones)
               PolygonLayer(
                 polygons: vm.floodZones
@@ -283,7 +319,6 @@ class _MapTab extends StatelessWidget {
                     .toList(),
               ),
 
-            // Road closure markers
             if (vm.layers.showRoadClosures)
               MarkerLayer(
                 markers: vm.roadClosures
@@ -309,7 +344,6 @@ class _MapTab extends StatelessWidget {
                     .toList(),
               ),
 
-            // Sensor station markers
             if (vm.layers.showStations)
               MarkerLayer(
                 markers: vm.stations
@@ -327,41 +361,38 @@ class _MapTab extends StatelessWidget {
           ],
         ),
 
-        // ── Layer toggles (top-right) ────────────────────────────────
         Positioned(
           top: 12,
           right: 12,
           child: _LayerToggles(vm: vm),
         ),
 
-        // ── Zoom to location button ──────────────────────────────────
         Positioned(
           bottom: 120,
           right: 12,
           child: FloatingActionButton.small(
             heroTag: 'zoom',
             backgroundColor: Colors.white,
-            onPressed: () {
-              mapController.move(const LatLng(3.1390, 101.6869), 12.5);
-            },
-            child: const Icon(Icons.my_location,
-                color: Color(0xFF3A83B7)),
+            onPressed: () =>
+                mapController.move(const LatLng(3.1390, 101.6869), 12.5),
+            child:
+                const Icon(Icons.my_location, color: Color(0xFF3A83B7)),
           ),
         ),
 
-        // ── Report road closure button ───────────────────────────────
-        Positioned(
-          bottom: 60,
-          right: 12,
-          child: FloatingActionButton.small(
-            heroTag: 'closure',
-            backgroundColor: Colors.red,
-            onPressed: () => _showReportClosureSheet(context, vm),
-            child: const Icon(Icons.add_road, color: Colors.white),
+        // Hide report button when offline — can't write to Firestore
+        if (!vm.isOffline)
+          Positioned(
+            bottom: 60,
+            right: 12,
+            child: FloatingActionButton.small(
+              heroTag: 'closure',
+              backgroundColor: Colors.red,
+              onPressed: () => _showReportClosureSheet(context, vm),
+              child: const Icon(Icons.add_road, color: Colors.white),
+            ),
           ),
-        ),
 
-        // ── Selected station bottom sheet ────────────────────────────
         if (vm.selectedStation != null)
           Positioned(
             bottom: 0,
@@ -374,7 +405,6 @@ class _MapTab extends StatelessWidget {
             ),
           ),
 
-        // ── Loading overlay ──────────────────────────────────────────
         if (vm.isLoading)
           Container(
             color: Colors.black26,
@@ -389,7 +419,8 @@ class _MapTab extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -409,9 +440,8 @@ class _MapTab extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(8)),
                     child: const Text('Verified',
                         style: TextStyle(
                             color: Colors.white, fontSize: 11)),
@@ -421,7 +451,8 @@ class _MapTab extends StatelessWidget {
             const SizedBox(height: 12),
             Text(closure.description),
             const SizedBox(height: 6),
-            Text('Reported ${closure.timeAgo} by ${closure.reportedBy}',
+            Text(
+                'Reported ${closure.timeAgo} by ${closure.reportedBy}',
                 style:
                     TextStyle(fontSize: 12, color: Colors.grey[500])),
             const SizedBox(height: 16),
@@ -430,7 +461,8 @@ class _MapTab extends StatelessWidget {
                 Icon(Icons.thumb_up_outlined,
                     color: Colors.grey[400], size: 16),
                 const SizedBox(width: 6),
-                Text('${closure.confirmedCount} people confirmed this',
+                Text(
+                    '${closure.confirmedCount} people confirmed this',
                     style: TextStyle(
                         fontSize: 12, color: Colors.grey[500])),
                 const Spacer(),
@@ -457,13 +489,15 @@ class _MapTab extends StatelessWidget {
     );
   }
 
-  void _showReportClosureSheet(BuildContext context, MonitorViewModel vm) {
+  void _showReportClosureSheet(
+      BuildContext context, MonitorViewModel vm) {
     final descController = TextEditingController();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: EdgeInsets.only(
           left: 20,
@@ -479,10 +513,9 @@ class _MapTab extends StatelessWidget {
                 style: TextStyle(
                     fontWeight: FontWeight.bold, fontSize: 17)),
             const SizedBox(height: 6),
-            Text(
-              'Your current map center location will be used.',
-              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
-            ),
+            Text('Your current map center location will be used.',
+                style:
+                    TextStyle(fontSize: 12, color: Colors.grey[500])),
             const SizedBox(height: 16),
             TextField(
               controller: descController,
@@ -540,7 +573,7 @@ class _StationMapMarker extends StatelessWidget {
         border: Border.all(color: Colors.white, width: 2),
         boxShadow: [
           BoxShadow(
-              color: station.statusColor.withOpacity(0.4),
+              color: station.statusColor.withValues(alpha: 0.4),
               blurRadius: 6,
               spreadRadius: 1),
         ],
@@ -563,7 +596,7 @@ class _LayerToggles extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 8,
               offset: const Offset(0, 2)),
         ],
@@ -619,15 +652,19 @@ class _LayerToggleBtn extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
-          color: active ? color.withOpacity(0.1) : Colors.grey[100],
+          color: active
+              ? color.withValues(alpha: 0.1)
+              : Colors.grey[100],
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 14, color: active ? color : Colors.grey),
+            Icon(icon,
+                size: 14, color: active ? color : Colors.grey),
             const SizedBox(width: 4),
             Text(label,
                 style: TextStyle(
@@ -641,7 +678,7 @@ class _LayerToggleBtn extends StatelessWidget {
   }
 }
 
-// ─── Selected Station Card (bottom of map) ────────────────────────────────────
+// ─── Selected Station Card ────────────────────────────────────────────────────
 class _SelectedStationCard extends StatelessWidget {
   final SensorStation station;
   final List<WaterLevelPoint> history;
@@ -663,7 +700,7 @@ class _SelectedStationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               blurRadius: 16,
               offset: const Offset(0, -4)),
         ],
@@ -671,7 +708,6 @@ class _SelectedStationCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             width: 40,
             height: 4,
@@ -686,11 +722,11 @@ class _SelectedStationCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: station.statusColor.withOpacity(0.1),
+                  color: station.statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child:
-                    Icon(Icons.sensors, color: station.statusColor, size: 22),
+                child: Icon(Icons.sensors,
+                    color: station.statusColor, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -699,7 +735,8 @@ class _SelectedStationCard extends StatelessWidget {
                   children: [
                     Text(station.name,
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 15)),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15)),
                     Text(station.river,
                         style: TextStyle(
                             fontSize: 12, color: Colors.grey[500])),
@@ -736,15 +773,15 @@ class _SelectedStationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Water level progress bar
           Row(
             children: [
               Text('0m',
-                  style: TextStyle(fontSize: 10, color: Colors.grey[400])),
+                  style:
+                      TextStyle(fontSize: 10, color: Colors.grey[400])),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8),
                   child: Stack(
                     children: [
                       Container(
@@ -754,19 +791,18 @@ class _SelectedStationCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      // Warning marker
                       FractionallySizedBox(
                         widthFactor:
                             station.warningLevel / station.dangerLevel,
                         child: Container(
                           height: 8,
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.3),
+                            color: Colors.orange
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
                       ),
-                      // Actual level
                       FractionallySizedBox(
                         widthFactor: station.levelFraction,
                         child: Container(
@@ -787,20 +823,20 @@ class _SelectedStationCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-
-          // Stats row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _MiniStat(
                   icon: Icons.speed,
                   label: 'Flow',
-                  value: '${station.flowRate.toStringAsFixed(0)} m³/s',
+                  value:
+                      '${station.flowRate.toStringAsFixed(0)} m³/s',
                   color: Colors.indigo),
               _MiniStat(
                   icon: Icons.water_drop,
                   label: 'Rainfall',
-                  value: '${station.rainfall.toStringAsFixed(1)} mm/hr',
+                  value:
+                      '${station.rainfall.toStringAsFixed(1)} mm/hr',
                   color: Colors.cyan),
               _MiniStat(
                   icon: Icons.access_time,
@@ -838,7 +874,8 @@ class _MiniStat extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: color)),
         Text(label,
-            style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+            style:
+                TextStyle(fontSize: 10, color: Colors.grey[500])),
       ],
     );
   }
@@ -860,11 +897,8 @@ class _StationsTab extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Summary row
           _SummaryRow(vm: vm),
           const SizedBox(height: 16),
-
-          // Water level graph for selected/critical station
           if (vm.waterHistory.isNotEmpty) ...[
             _WaterLevelGraph(
               history: vm.waterHistory,
@@ -872,8 +906,6 @@ class _StationsTab extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-
-          // Station cards
           const Text('Active Stations',
               style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -884,8 +916,7 @@ class _StationsTab extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _StationCard(
                   station: s,
-                  isSelected:
-                      vm.selectedStation?.id == s.id,
+                  isSelected: vm.selectedStation?.id == s.id,
                   onTap: () => vm.selectStation(s),
                 ),
               )),
@@ -904,40 +935,32 @@ class _SummaryRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: _SummaryCard(
-            value: '${vm.stations.length}',
-            label: 'Stations',
-            icon: Icons.sensors,
-            color: Colors.blue,
-          ),
-        ),
+            child: _SummaryCard(
+                value: '${vm.stations.length}',
+                label: 'Stations',
+                icon: Icons.sensors,
+                color: Colors.blue)),
         const SizedBox(width: 10),
         Expanded(
-          child: _SummaryCard(
-            value: '${vm.dangerStationCount}',
-            label: 'Danger',
-            icon: Icons.warning,
-            color: Colors.red,
-          ),
-        ),
+            child: _SummaryCard(
+                value: '${vm.dangerStationCount}',
+                label: 'Danger',
+                icon: Icons.warning,
+                color: Colors.red)),
         const SizedBox(width: 10),
         Expanded(
-          child: _SummaryCard(
-            value: '${vm.warningStationCount}',
-            label: 'Warning',
-            icon: Icons.warning_amber,
-            color: Colors.orange,
-          ),
-        ),
+            child: _SummaryCard(
+                value: '${vm.warningStationCount}',
+                label: 'Warning',
+                icon: Icons.warning_amber,
+                color: Colors.orange)),
         const SizedBox(width: 10),
         Expanded(
-          child: _SummaryCard(
-            value: '${vm.activeRoadClosures}',
-            label: 'Closures',
-            icon: Icons.block,
-            color: Colors.purple,
-          ),
-        ),
+            child: _SummaryCard(
+                value: '${vm.activeRoadClosures}',
+                label: 'Closures',
+                icon: Icons.block,
+                color: Colors.purple)),
       ],
     );
   }
@@ -957,11 +980,13 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding:
+          const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border:
+            Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
@@ -973,8 +998,8 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: 18,
                   color: color)),
           Text(label,
-              style:
-                  TextStyle(fontSize: 10, color: Colors.grey[500])),
+              style: TextStyle(
+                  fontSize: 10, color: Colors.grey[500])),
         ],
       ),
     );
@@ -1003,12 +1028,12 @@ class _StationCard extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? station.statusColor
-                : station.statusColor.withOpacity(0.2),
+                : station.statusColor.withValues(alpha: 0.2),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: station.statusColor.withOpacity(0.06),
+              color: station.statusColor.withValues(alpha: 0.06),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -1019,7 +1044,8 @@ class _StationCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: station.statusColor.withOpacity(0.1),
+                color:
+                    station.statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(Icons.sensors,
@@ -1032,13 +1058,13 @@ class _StationCard extends StatelessWidget {
                 children: [
                   Text(station.name,
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14)),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
                   const SizedBox(height: 2),
                   Text(station.river,
                       style: TextStyle(
                           fontSize: 12, color: Colors.grey[500])),
                   const SizedBox(height: 6),
-                  // Level bar
                   ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
@@ -1066,7 +1092,8 @@ class _StationCard extends StatelessWidget {
                               fontWeight: FontWeight.w600)),
                       Text(' • ${station.lastUpdatedLabel}',
                           style: TextStyle(
-                              fontSize: 11, color: Colors.grey[500])),
+                              fontSize: 11,
+                              color: Colors.grey[500])),
                     ],
                   ),
                 ],
@@ -1075,7 +1102,8 @@ class _StationCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('${station.waterLevel.toStringAsFixed(1)}m',
+                Text(
+                    '${station.waterLevel.toStringAsFixed(1)}m',
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -1107,9 +1135,8 @@ class _WaterLevelGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     if (history.isEmpty) return const SizedBox.shrink();
 
-    final maxLevel = history
-        .map((p) => p.level)
-        .reduce((a, b) => a > b ? a : b);
+    final maxLevel =
+        history.map((p) => p.level).reduce((a, b) => a > b ? a : b);
     final dangerLevel = station?.dangerLevel ?? 4.5;
     final warningLevel = station?.warningLevel ?? 3.0;
 
@@ -1120,7 +1147,7 @@ class _WaterLevelGraph extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4)),
         ],
@@ -1140,8 +1167,7 @@ class _WaterLevelGraph extends StatelessWidget {
               ),
               Text('max ${maxLevel.toStringAsFixed(1)}m',
                   style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[500])),
+                      fontSize: 12, color: Colors.grey[500])),
             ],
           ),
           const SizedBox(height: 16),
@@ -1160,11 +1186,14 @@ class _WaterLevelGraph extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _GraphLegend(color: Colors.blue, label: 'Water Level'),
               _GraphLegend(
-                  color: Colors.orange, label: 'Warning ${warningLevel}m'),
+                  color: Colors.blue, label: 'Water Level'),
               _GraphLegend(
-                  color: Colors.red, label: 'Danger ${dangerLevel}m'),
+                  color: Colors.orange,
+                  label: 'Warning ${warningLevel}m'),
+              _GraphLegend(
+                  color: Colors.red,
+                  label: 'Danger ${dangerLevel}m'),
             ],
           ),
         ],
@@ -1190,7 +1219,8 @@ class _GraphLegend extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2))),
         const SizedBox(width: 5),
         Text(label,
-            style: TextStyle(fontSize: 10, color: Colors.grey[600])),
+            style:
+                TextStyle(fontSize: 10, color: Colors.grey[600])),
       ],
     );
   }
@@ -1215,25 +1245,20 @@ class _GraphPainter extends CustomPainter {
     double toY(double val) =>
         size.height - (val / maxVal * size.height).clamp(0, size.height);
 
-    // Draw danger line
     final dangerPaint = Paint()
-      ..color = Colors.red.withOpacity(0.5)
+      ..color = Colors.red.withValues(alpha: 0.5)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
-    final dangerY = toY(dangerLevel);
-    canvas.drawLine(
-        Offset(0, dangerY), Offset(size.width, dangerY), dangerPaint);
+    canvas.drawLine(Offset(0, toY(dangerLevel)),
+        Offset(size.width, toY(dangerLevel)), dangerPaint);
 
-    // Draw warning line
     final warningPaint = Paint()
-      ..color = Colors.orange.withOpacity(0.5)
+      ..color = Colors.orange.withValues(alpha: 0.5)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
-    final warningY = toY(warningLevel);
-    canvas.drawLine(
-        Offset(0, warningY), Offset(size.width, warningY), warningPaint);
+    canvas.drawLine(Offset(0, toY(warningLevel)),
+        Offset(size.width, toY(warningLevel)), warningPaint);
 
-    // Draw water level line
     final linePaint = Paint()
       ..color = const Color(0xFF3A83B7)
       ..strokeWidth = 2.5
@@ -1242,7 +1267,7 @@ class _GraphPainter extends CustomPainter {
       ..strokeJoin = StrokeJoin.round;
 
     final fillPaint = Paint()
-      ..color = const Color(0xFF3A83B7).withOpacity(0.1)
+      ..color = const Color(0xFF3A83B7).withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
     final path = ui.Path();
@@ -1263,7 +1288,6 @@ class _GraphPainter extends CustomPainter {
 
     fillPath.lineTo(size.width, size.height);
     fillPath.close();
-
     canvas.drawPath(fillPath, fillPaint);
     canvas.drawPath(path, linePaint);
   }
@@ -1282,39 +1306,40 @@ class _RoadClosuresTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Report button banner
         Container(
           width: double.infinity,
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.red[50],
+            color: vm.isOffline ? Colors.grey[100] : Colors.red[50],
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.red.shade200),
+            border: Border.all(
+              color: vm.isOffline
+                  ? Colors.grey.shade300
+                  : Colors.red.shade200,
+            ),
           ),
           child: Row(
             children: [
-              const Icon(Icons.add_road, color: Colors.red),
+              Icon(Icons.add_road,
+                  color:
+                      vm.isOffline ? Colors.grey : Colors.red),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Know of a flooded road? Report it to warn others.',
-                  style:
-                      TextStyle(fontSize: 13, color: Colors.red[700]),
+                  vm.isOffline
+                      ? 'Road closure reporting unavailable offline.'
+                      : 'Know of a flooded road? Report it to warn others.',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: vm.isOffline
+                          ? Colors.grey[600]
+                          : Colors.red[700]),
                 ),
-              ),
-              TextButton(
-                onPressed: () {
-                  // Navigate to Map tab and open sheet
-                  // (handled in MapTab directly)
-                },
-                child: const Text('Go to Map',
-                    style: TextStyle(color: Colors.red)),
               ),
             ],
           ),
         ),
-
         if (vm.roadClosures.isEmpty)
           Expanded(
             child: Center(
@@ -1326,7 +1351,8 @@ class _RoadClosuresTab extends StatelessWidget {
                   const SizedBox(height: 12),
                   const Text('No road closures reported',
                       style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
                   Text('All roads appear to be passable',
                       style: TextStyle(
@@ -1349,22 +1375,26 @@ class _RoadClosuresTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.shade100),
+                    border: Border.all(
+                        color: Colors.red.shade100),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black
+                              .withValues(alpha: 0.04),
                           blurRadius: 6,
                           offset: const Offset(0, 2)),
                     ],
                   ),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius:
+                              BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.block,
                             color: Colors.red, size: 20),
@@ -1372,12 +1402,14 @@ class _RoadClosuresTab extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment.start,
                           children: [
                             Text(c.description,
                                 style: const TextStyle(
                                     fontSize: 13,
-                                    fontWeight: FontWeight.w600)),
+                                    fontWeight:
+                                        FontWeight.w600)),
                             const SizedBox(height: 4),
                             Text(
                               '${c.timeAgo} • ${c.reportedBy} • ${c.confirmedCount} confirmed',
@@ -1394,7 +1426,8 @@ class _RoadClosuresTab extends StatelessWidget {
                               horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
                             color: Colors.green,
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius:
+                                BorderRadius.circular(6),
                           ),
                           child: const Text('✓',
                               style: TextStyle(
