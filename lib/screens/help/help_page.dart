@@ -129,7 +129,7 @@ class HelpPage extends StatelessWidget {
                     title: 'Safety Guidelines',
                     subtitle: 'Learn flood safety measures',
                     color: Colors.blue,
-                    onTap: () => Navigator.pushNamed(context, '/game'),
+                    onTap: () => Navigator.pushNamed(context, '/gamedashboard'),
                   ),
                 ],
               ),
