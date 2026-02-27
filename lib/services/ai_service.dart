@@ -338,7 +338,7 @@ class FloodRiskAnalysis {
       case 'CRITICAL': return const Color(0xFFD32F2F);
       case 'HIGH': return const Color(0xFFF57C00);
       case 'MODERATE': return const Color(0xFFFBC02D);
-      default: return const Color(0xFF388E3C);
+      default: return const Color.fromARGB(255, 86, 255, 94);
     }
   }
 }

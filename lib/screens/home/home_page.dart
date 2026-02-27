@@ -174,14 +174,14 @@ class _SectionLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: _C.heading, size: 18),
+        Icon(icon, color: const Color.fromARGB(255, 255, 255, 255), size: 18),
         const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.bold,
-            color: _C.heading,
+            color: Color.fromARGB(255, 255, 255, 255),
             letterSpacing: 0.3,
           ),
         ),

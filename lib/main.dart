@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -60,8 +59,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await Hive.initFlutter();  
-  await MonitorRepository.openBoxes(); 
+  await Hive.initFlutter();
+  await MonitorRepository.openBoxes();
 
   if (!kIsWeb) {
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -93,6 +92,10 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // Target mobile dimensions
+  static const double _mobileWidth = 430.0;
+  static const double _mobileHeight = 932.0;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -102,13 +105,17 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF0072FF), // your main blue
+          seedColor: const Color(0xFF0072FF),
           brightness: Brightness.light,
         ),
         useMaterial3: true,
       ),
       navigatorKey: navigatorKey,
       initialRoute: '/splashscreen',
+      // Wrap every route in the mobile frame
+      builder: (context, child) {
+        return _MobileFrame(child: child ?? const SizedBox.shrink());
+      },
       routes: {
         '/splashscreen': (context) => const SplashScreen(),
         '/': (context) => const AuthWrapper(),
@@ -134,6 +141,63 @@ class MyApp extends StatelessWidget {
         '/floodrisinggame': (context) => const FloodRisingGamePage(),
         '/report': (context) => const ReportPage(),
       },
+    );
+  }
+}
+
+// ─── Mobile Frame ─────────────────────────────────────────────────────────────
+// On wide screens (desktop/web), constrains the app to a phone-sized viewport
+// centred on a dark background. On narrow screens it's a no-op passthrough.
+class _MobileFrame extends StatelessWidget {
+  final Widget child;
+
+  const _MobileFrame({required this.child});
+
+  static const double _mobileWidth = 430.0;
+  static const double _mobileHeight = 932.0;
+  // Only apply the frame above this breakpoint
+  static const double _breakpoint = 600.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // On real mobile widths — pass through untouched
+    if (screenWidth <= _breakpoint) return child;
+
+    // On desktop/wide web — render a phone shell in the centre
+    return Scaffold(
+      backgroundColor: const Color(0xFF1A1A2E),
+      body: Center(
+        child: Container(
+          width: _mobileWidth,
+          height: _mobileHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                blurRadius: 40,
+                spreadRadius: 5,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          // Clip everything inside to the phone shape
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(40),
+            child: MediaQuery(
+              // Override MediaQuery so widgets inside think they're on a phone
+              data: MediaQuery.of(context).copyWith(
+                size: const Size(_mobileWidth, _mobileHeight),
+                padding: const EdgeInsets.only(top: 44, bottom: 34),
+                viewInsets: EdgeInsets.zero,
+              ),
+              child: child,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
