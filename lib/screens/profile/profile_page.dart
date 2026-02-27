@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 255, 142)],
+                  colors: [Color(0xFF3A83B7), Color.fromARGB(255, 29, 217, 255)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -118,6 +118,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: 'Alerts Received',
                       value: '24',
                       color: Colors.orange,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/alerts');
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -127,6 +130,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       label: 'Areas Monitored',
                       value: '3',
                       color: Colors.blue,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/monitor');
+                      },
                     ),
                   ),
                 ],
@@ -159,31 +165,46 @@ class _ProfilePageState extends State<ProfilePage> {
                     icon: Icons.notifications_outlined,
                     title: 'Notification Settings',
                     subtitle: 'Manage alerts and notifications',
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.pushNamed(context, '/notification-settings');
+                      _refreshUser();
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.location_on_outlined,
                     title: 'Location Preferences',
                     subtitle: 'Set your monitored areas',
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.pushNamed(context, '/location-preferences');
+                      _refreshUser();
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.security_outlined,
                     title: 'Privacy & Security',
                     subtitle: 'Manage your privacy settings',
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.pushNamed(context, '/privacy-security');
+                      _refreshUser();
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.help_outline,
                     title: 'Help & Support',
                     subtitle: 'Get help and contact support',
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.pushNamed(context, '/help');
+                      _refreshUser();
+                    },
                   ),
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: 'About',
                     subtitle: 'App version and information',
-                    onTap: () {},
+                    onTap: () async {
+                      await Navigator.pushNamed(context, '/about');
+                      _refreshUser();
+                    },
                   ),
                 ],
               ),
@@ -706,17 +727,19 @@ class _StatsCard extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final VoidCallback? onTap; // optional callback when card is pressed
 
   const _StatsCard({
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final card = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -750,6 +773,11 @@ class _StatsCard extends StatelessWidget {
         ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(onTap: onTap, child: card);
+    }
+    return card;
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
@@ -18,6 +19,10 @@ import 'screens/home/home_page.dart';
 import 'screens/alert/alerts_page.dart';
 import 'screens/help/help_page.dart';
 import 'screens/profile/profile_page.dart';
+import 'screens/profile/notification_settings_page.dart';
+import 'screens/profile/location_preferences_page.dart';
+import 'screens/profile/privacy_security_page.dart';
+import 'screens/profile/about_page.dart';
 import 'screens/monitor/monitor_page.dart';
 import 'screens/checklist/checklist_page.dart';
 import 'screens/communitypost/community_posts_page.dart';
@@ -84,6 +89,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        textTheme: GoogleFonts.varelaRoundTextTheme(
+          Theme.of(context).textTheme,
+        ),
+      ),
       navigatorKey: navigatorKey,
       initialRoute: '/splashscreen',
       routes: {
@@ -94,6 +104,10 @@ class MyApp extends StatelessWidget {
         '/alerts': (context) => const AlertsPage(),
         '/help': (context) => const HelpPage(),
         '/profile': (context) => const ProfilePage(),
+        '/notification-settings': (context) => const NotificationSettingsPage(),
+        '/location-preferences': (context) => const LocationPreferencesPage(),
+        '/privacy-security': (context) => const PrivacySecurityPage(),
+        '/about': (context) => const AboutPage(),
         '/monitor': (context) => const MonitorPage(),
         '/checklist': (context) => const ChecklistPage(),
         '/community': (context) => const CommunityPostsPage(),

@@ -30,8 +30,8 @@ class CustomBottomNavBar extends StatelessWidget {
                 Navigator.of(context).pushNamed('/alerts');
                 break;
               case 2:
-                // Navigate to Help
-                Navigator.of(context).pushNamed('/help');
+                // Navigate to News
+                Navigator.of(context).pushNamed('/news');
                 break;
               case 3:
                 // Navigate to Profile
@@ -45,7 +45,7 @@ class CustomBottomNavBar extends StatelessWidget {
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.warning), label: 'Alerts'),
-        BottomNavigationBarItem(icon: Icon(Icons.help), label: 'Help'),
+        BottomNavigationBarItem(icon: Icon(Icons.feed_rounded), label: 'News'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
       ],
     );

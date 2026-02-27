@@ -6,6 +6,7 @@ import 'news_model.dart';
 import '../authentication/user_model.dart';
 import 'news_viewmodel.dart';
 import '../authentication/auth_viewmodel.dart';
+import '../navbar/navbar.dart';
 
 class NewsPage extends StatelessWidget {
   const NewsPage({super.key});
@@ -56,7 +57,7 @@ class _NewsViewState extends State<_NewsView> {
         child: CustomScrollView(
           slivers: [
             // ── App Bar ──────────────────────────────────────────────
-            _NewsAppBar(vm: vm),
+            _NewsHeader(vm: vm),
 
             // ── Breaking news ticker ─────────────────────────────────
             if (!vm.isLoadingNews && vm.breakingCount > 0)
@@ -115,101 +116,64 @@ class _NewsViewState extends State<_NewsView> {
           ],
         ),
       ),
+       bottomNavigationBar: const CustomBottomNavBar(
+    currentIndex: 2, // News index
+  ),
+  floatingActionButton: const MonitorFAB(),
+  floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
 
-// ─── App Bar ──────────────────────────────────────────────────────────────────
-class _NewsAppBar extends StatelessWidget {
+class _NewsHeader extends StatelessWidget {
   final NewsViewModel vm;
-  const _NewsAppBar({required this.vm});
+  const _NewsHeader({required this.vm});
 
   @override
   Widget build(BuildContext context) {
-    return SliverAppBar(
-      expandedHeight: 130,
-      pinned: true,
-      backgroundColor: const Color(0xFF3A83B7),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => Navigator.pop(context),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh, color: Colors.white),
-          onPressed: vm.isLoadingNews ? null : vm.refresh,
-        ),
-      ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1565C0), Color(0xFF3A83B7)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+    return SliverToBoxAdapter(
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFF3A83B7),
+              Color.fromARGB(255, 29, 217, 255),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 50, 20, 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.feed_outlined,
-                          color: Colors.white, size: 22),
-                      const SizedBox(width: 8),
-                      const Text('Flood News',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20)),
-                      const Spacer(),
-                      if (vm.lastFetched != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(children: [
-                            Container(
-                              width: 6, height: 6,
-                              decoration: const BoxDecoration(
-                                  color: Colors.greenAccent,
-                                  shape: BoxShape.circle),
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Live',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold)),
-                          ]),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on,
-                          color: Colors.white70, size: 14),
-                      const SizedBox(width: 4),
-                      Text(
-                        vm.currentLocation.isEmpty
-                            ? 'Detecting location...'
-                            : vm.currentLocation,
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ],
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Flood News',
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
-            ),
+              const SizedBox(height: 6),
+              Text(
+                vm.currentLocation.isEmpty
+                    ? 'Stay updated on flood situations'
+                    : vm.currentLocation,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.white70),
+              ),
+            ],
           ),
         ),
       ),
