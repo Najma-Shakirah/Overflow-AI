@@ -180,7 +180,38 @@ Overflow AI consists of:
 
 #  Challenges Faced  
 
-- 
+Here are the challenges, with the social media point added:
+
+---
+
+## ⚠️ Challenges Faced
+
+- **AI Contextualisation**
+Getting Gemini to generate *useful*, location-specific evacuation plans required feeding it live weather and flood data, and engineering prompts that returned structured output instead of generic text.
+
+- **Unreliable Live Data**
+Real sensor data from JPS isn't always available. We built a fallback chain — live Firestore → cached Hive data → mock data — so the app never breaks during a disaster when users need it most.
+
+- **Multi-Source News Aggregation**
+Merging three data sources (NewsData.io, JPS RSS, social media) with different formats, languages (EN + BM), and reliability into one clean feed required a custom deduplication algorithm.
+
+- **Social Media Data Restrictions**
+Platforms like TikTok, X, and Facebook don't offer free public APIs for content scraping. We couldn't pull live posts directly, so we routed through a Firebase Cloud Function and fell back to deep-linking users to live search results — a practical workaround but a real limitation.
+
+- **Offline Support**
+The app is most needed when connectivity fails during floods. Knowing when to serve cached vs. live data — and what to pre-download — required deliberate architecture decisions using Hive + Firestore together.
+
+- **Community Posts**
+Coordinating image uploads to Cloudinary, retrieving the URL, then writing to Firestore — with proper error handling at each step — made what looks like a simple post feature technically involved.
+
+- **Auth Edge Cases**
+Handling three user states (registered, guest, loading) consistently across every screen, including edge cases like Firestore not yet written after registration or network failures mid-login, was harder than expected.
+
+- **Keeping Shelter Data Current**
+The shelter model tracks rich real-world detail (occupancy, medical needs, supplies). Without a live admin portal, keeping this data accurate during an actual flood event remains an operational challenge.
+
+- **Games Without a Game Engine**
+Flutter isn't built for games. Building custom water animations, collision detection, and game loops using `CustomPainter` and ViewModels alone — with no dedicated engine — took significant extra effort.
 
 
 
@@ -211,3 +242,41 @@ flutter pub get
 
 6. Run the application
 flutter run
+```
+## Future Roadmap
+### ✅ Currently Built
+- [x] User authentication (login, register, guest)
+- [x] Home dashboard with live weather & AI flood risk card
+- [x] Flood alerts feed with filters
+- [x] Live map monitor with road closures
+- [x] Community posts with photo uploads
+- [x] Flood reporting
+- [x] AI evacuation plan generator (Gemini 2.5 Flash)
+- [x] AI flood photo analyser
+- [x] Shelter finder with live capacity data
+- [x] Emergency preparedness checklist
+- [x] Flood-themed educational games (3 games)
+- [x] News feed (NewsData.io + JPS RSS)
+- [x] Push notifications (FCM)
+- [x] Offline caching (Hive)
+
+---
+
+### 🚧 Phase 1 — Near Term
+- [ ] Full Bahasa Malaysia localisation
+- [ ] Home screen widget (flood risk at a glance)
+- [ ] Real JPS sensor API integration (live water levels)
+- [ ] Offline / disaster mode (pre-downloaded plans & shelters)
+
+### 🔮 Phase 2 — Mid Term
+- [ ] Rescue request board (stranded → volunteer → rescued)
+- [ ] Shelter check-in & reservation system
+- [ ] Predictive flood arrival time (AI + rainfall trends)
+- [ ] Web admin portal for shelter coordinators
+
+### 🌟 Phase 3 — Long Term
+- [ ] Gemini-powered flood assistant chatbot
+- [ ] Video flood analysis (extend photo analyser)
+- [ ] Flood heatmap dashboard for authorities
+- [ ] NADMA / Bomba / Red Crescent official alert integration
+- [ ] SMS fallback alerts for no-internet scenarios
