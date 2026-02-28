@@ -162,11 +162,18 @@ Overflow AI consists of:
 
 ##  Workflow  
 
-1. User register into the app
-2. 
-3.
-4.
-5.
+1. User opens the app and is greeted by a splash screen that checks their login state
+2. User registers, logs in, or continues as a guest to access the home dashboard
+3. Home dashboard automatically fetches live weather data using the device's GPS location
+4. Gemini AI analyses the weather and rainfall data to display a real-time flood risk level (Low / Moderate / High)
+5. User receives push notifications via FCM if a flood alert is issued in their area
+6. User checks the Alerts page for detailed flood warnings filtered by severity and location
+7. User opens the Live Monitor map to view active sensor stations, flood zones, and road closures in real time
+8. User uploads a flood photo which is analysed by Gemini AI to assess flood severity on the ground
+9. Gemini AI generates a personalised evacuation plan based on the user's current location and live weather conditions
+10. User finds the nearest available shelter with live capacity, resources, and contact information
+11. User submits a flood report or community post with photos to help others in the area
+12. If connectivity is lost, the app automatically falls back to cached data stored locally via Hive
 
 
 ##  Innovation  
