@@ -225,24 +225,41 @@ Try the live version here : https://overflow-ai-five.vercel.app/
 - Flutter SDK  
 - Dart
 
-## Installations 
+# ⚙️ Installation & Setup
 
+## 📱 Option 1 — Download APK (Recommended)
+
+No build required. Just download and install directly on your Android device.
+
+1. Go to the [Releases](https://github.com/Najma-Shakirah/Overflow-AI/releases) page
+2. Download the latest `app-release.apk`
+3. On your Android device, go to **Settings → Security → Enable Unknown Sources**
+4. Open the downloaded APK and tap **Install**
+5. Launch **OverflowAI** ✅
+
+> ⚠️ Requires Android 8.0 (API level 26) or higher
+
+---
+
+## 🛠️ Option 2 — Build from Source
+
+**Prerequisites**
+- Flutter SDK
+- Dart
 ```bash
-1. Clone the repository
-git clone https://github.com/your-username/overflow-ai.git
+# 1. Clone the repository
+git clone https://github.com/Najma-Shakirah/Overflow-AI.git
 
-2. Navigate to project folder
+# 2. Navigate to project folder
 cd overflow-ai
 
-3. Install dependencies
+# 3. Install dependencies
 flutter pub get
 
-4. 
-
-
-6. Run the application
+# 4. Run the application
 flutter run
 ```
+
 ## Future Roadmap
 ### ✅ Currently Built
 - [x] User authentication (login, register, guest)
