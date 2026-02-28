@@ -21,7 +21,6 @@ Overflow AI is an intelligent flood preparedness and response mobile application
 #  Project Overview  
 
 ##  Problem Statement  
-
 Floods remain one of the most frequent natural disasters in many regions, particularly in urban areas. Despite existing warning systems, several critical gaps remain:
 
 ###  Lack of Real-Time, Localized Flood Information  
@@ -43,7 +42,10 @@ However, this information is often scattered or unavailable during network disru
 Communities lack centralized platforms to:
 - Report damages  
 - Request assistance  
-- Connect with relief organizations  
+- Connect with relief organizations
+
+###  Connectivity Issues During Floods
+Flood often distrupt internet access, making digital tools unusable
 
 ##  SDG Alignment  
 
@@ -58,30 +60,50 @@ Overflow AI aligns with:
 
 ##  Short Description of the Solution  
 
-Overflow AI addresses the limitations of traditional flood systems by delivering:
+Overflow AI addresses the limitations of traditional flood app by delivering:
 
 - AI-based flood prediction  
 - Real-time weather and river level monitoring  
-- Hyperlocal alerts  
+- Flood Alerts 
+- Photo AI Analyser
+- Live Monitoring
 - Offline access during poor connectivity  
-- Community-powered reporting  
+- Community-powered reporting
+- Evacuation Plan AI Generator
+- News AI Summarization
 
 Unlike generic early warning systems, Overflow AI integrates prediction, mapping, preparedness education, and emergency coordination into one unified platform.
 
 
 #  Key Features  
 
-- **Flood Prediction AI** – Predicts potential flood risk using weather and environmental data  
-- **Real-Time Flood Map** – Displays affected and high-risk areas  
-- **Evacuation AI** – Shows nearest evacuation center
-- **Alert & Notification System** – Sends timely emergency updates
-- **Shelter Locator** – Shows available shelters information 
-- **Community Reporting** – Allows users to report real-time flood conditions  
-- **Gamified Flood Preparedness Education** – Interactive learning module  
-- **Emergency Checklist** – Personalized preparation checklist  
-- **Offline Mode** – Core features accessible without stable internet  
-- **Dashboard/Home Page** – Centralized flood status overview  
-- **User Profile Page** – Personalized data & reporting history  
+- **Flood Prediction AI**
+ – Predicts potential flood risk using weather and environmental data
+ 
+- **Real-Time Flood Map**
+ – Displays affected and high-risk areas
+- **Alert System**
+ – Location-based real-time notifications
+- **Photo AI Analyzer**
+ – Assesses flood severity from uploaded images
+- **Evacuation AI Generator Plan**
+ – Personalised evacuation guidance
+- **Alert & Notification System**
+ – Sends timely emergency updates
+- **Shelter Locator**
+ – Shows available shelters information 
+- **Community Reporting**
+ – Allows users to report real-time flood conditions  
+- **Gamified Flood Preparedness Education**
+ – Interactive learning module  
+- **Emergency Checklist**
+ – Personalized preparation checklist  
+- **Offline Mode**
+ – Core features accessible without stable internet  
+- **Dashboard/Home Page**
+– Centralized flood status overview  
+- **User Profile Page**
+– Personalized data & reporting history  
 
 ---
 
@@ -164,16 +186,15 @@ Overflow AI consists of:
 
 #  Installation & Setup  
 
-##  Requirements  
+##  Live Demo
+Try the live version here : https://overflow-ai-five.vercel.app/
+
+##  Prerequisites  
 
 - Flutter SDK  
-- Dart  
-- Firebase project setup  
-- OpenWeather API key  
+- Dart
 
----
-
-## Setup Instructions  
+## Installations 
 
 ```bash
 1. Clone the repository
@@ -185,10 +206,7 @@ cd overflow-ai
 3. Install dependencies
 flutter pub get
 
-4. Add your OpenWeather API key in the configuration file
-
-5. Configure Firebase
-- Add google-services.json (Android)
+4. 
 
 
 6. Run the application
