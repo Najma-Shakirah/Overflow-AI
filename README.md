@@ -232,8 +232,6 @@ Try the live version here : https://overflow-ai-five.vercel.app/
 - Flutter SDK  
 - Dart
 
-# ⚙️ Installation & Setup
-
 ## 📱 Option 1 — Download APK (Recommended)
 
 No build required. Just download and install directly on your Android device.
