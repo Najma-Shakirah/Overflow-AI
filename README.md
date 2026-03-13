@@ -222,6 +222,9 @@ Flutter isn't built for games. Building custom water animations, collision detec
 
 ## Link Video
 https://youtu.be/paPDCWSi7aA?si=2kAIpM_PC_tW4RCH
+## Report
+## 📄 Report
+[Click here to view our full report](./report.pdf)
 
 #  Installation & Setup  
 
